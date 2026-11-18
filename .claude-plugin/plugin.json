@@ -1,0 +1,16 @@
+{
+  "name": "prose-craft",
+  "version": "0.1.0",
+  "description": "Makes AI writing less bad: a writing skill (subject-first sentences, no em dashes, complete sentences, concrete closings) plus a deterministic filter that feeds violations back to any agent.",
+  "author": {
+    "name": "nhangen"
+  },
+  "license": "MIT",
+  "keywords": [
+    "writing",
+    "prose",
+    "editing",
+    "style",
+    "filter"
+  ]
+}
