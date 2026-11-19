@@ -56,7 +56,7 @@ python3 skills/prose-craft/scripts/prose-filter.py run --agent "codex exec -" dr
 python3 skills/prose-craft/scripts/prose-filter.py run --agent "ollama run MODEL" draft.md
 ```
 
-`--max-rounds N` sets the number of attempts (default 3). The command exits 1 if the text still fails after the last round and 2 if the agent command fails. I have only tested it live with `claude -p`.
+`--max-rounds N` sets the number of attempts (default 3). The command exits 1 if the text still fails after the last round and 2 if the agent command fails.
 
 `skills/prose-craft/scripts/reject-emdash.py` is a smaller checker for dashes alone.
 
