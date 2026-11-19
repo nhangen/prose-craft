@@ -18,6 +18,18 @@ claude plugin install prose-craft@nhangen-tools
 
 The skill loads on its own when a task matches its description, or you can load it by name with `/prose-craft`.
 
+## Other harnesses
+
+The skill is a standard `SKILL.md` folder, so any harness that reads Agent Skills can load it. Clone this repo, copy `skills/prose-craft` into the harness's skills directory, then ask for `prose-craft` by name or let the description trigger it.
+
+```bash
+git clone https://github.com/nhangen/prose-craft
+cp -R prose-craft/skills/prose-craft ~/.config/opencode/skills/   # OpenCode
+cp -R prose-craft/skills/prose-craft .agents/skills/              # Codex, per repository
+```
+
+The filter is plain Python 3, so it runs anywhere. Point it at your clone's `scripts/prose-filter.py`. I have only tested the plugin in Claude Code.
+
 ## The filter
 
 Check a file:

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+- Skill: add a serial comma habit (house style, not checked by the filter).
+- Skill: say how to run the filter outside Claude Code, where `${CLAUDE_PLUGIN_ROOT}` does not exist.
+- README: add install notes for OpenCode and Codex.
+
 ## 0.1.0
 
 - Skill with two hard rules (subject first, no em dashes) and measured writing habits.
