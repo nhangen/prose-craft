@@ -43,7 +43,10 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-TC0R2KF0H9');
+  gtag('config', 'G-TC0R2KF0H9', {
+    page_location: `${window.location.origin}${window.location.pathname}`,
+    page_referrer: document.referrer ? new URL(document.referrer).origin : '',
+  });
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
