@@ -38,8 +38,6 @@ cp -R prose-craft/skills/prose-craft ~/.config/opencode/skills/
 
 OpenCode lists the skill to the model, which loads it with its `skill` tool. You can also write `@prose-craft` in a prompt. Paths inside a skill resolve relative to its `SKILL.md`, so `scripts/prose-filter.py` is found after a plain copy.
 
-I have only tested the plugin in Claude Code.
-
 ## The filter
 
 Check a file:
