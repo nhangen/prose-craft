@@ -1,0 +1,42 @@
+body{margin:0;background:#F5F1E8;color:#1A1916;font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.pc{--paper:#F5F1E8;--band:#EDE7D8;--card:#FFFDF7;--ink:#1A1916;--rule:#D9D2C0;--rule2:#CFC7B2;--muted:#5C574D;--body:#3D3A33;--red:#B3261E;--green:#1B6B4F;--fixbg:#D5EBDD;--fixink:#0F4A35;--badbg:#F6D9D4;--badink:#7A1710;--greenbg:#EEF7F1;--bar:#B9B09A;background:var(--paper);color:var(--ink)}
+.pc.dark{--paper:#15140F;--band:#1C1B16;--card:#24221D;--ink:#EDE8DB;--rule:#3A372D;--rule2:#4A463A;--muted:#A8A08C;--body:#C9C2AE;--red:#E5786E;--green:#6FCF9F;--fixbg:#17342A;--fixink:#BDE8D1;--badbg:#3A1D19;--badink:#F6C9C3;--greenbg:#17342A;--bar:#5C574D}
+a{color:var(--ink)}a:hover{color:var(--red)}
+button{font-family:inherit;cursor:pointer}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px;box-sizing:border-box}
+.serif{font-family:'Newsreader',Georgia,serif}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.eyebrow{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.tab{border:1px solid var(--rule2);background:transparent;color:var(--ink);padding:10px 16px;min-height:44px;border-radius:999px;font-size:14px;font-weight:500}
+.tab-on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.seg{transition:background .25s,color .25s}
+.seg-bad{background:var(--badbg);color:var(--badink);text-decoration:underline wavy var(--red);text-underline-offset:4px;border-radius:3px}
+.seg-fixed{background:var(--fixbg);color:var(--fixink);border-radius:3px}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 20px;border-radius:999px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);font-size:14px;font-weight:500;text-decoration:none}
+.btn:hover{background:var(--red);border-color:var(--red);color:#fff}
+.btn-ghost{background:transparent;color:var(--ink)}
+.btn-ghost:hover{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.pen{background:linear-gradient(var(--red),var(--red)) no-repeat 0 100%;background-size:0 3px;animation:pen 7s ease-in-out infinite}
+.arrive{animation:arrive 7s ease-in-out infinite}
+.bar-grow{transform-origin:left center;animation:grow 1.4s cubic-bezier(.2,.8,.2,1) both}
+.lit1{animation:lit1 9s infinite}.lit2{animation:lit2 9s infinite}.lit3{animation:lit3 9s infinite}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);animation:blink 1.6s infinite}
+.row-in{animation:rowin .5s both}
+input[type=range]{width:100%;accent-color:var(--green);height:44px;margin:0}
+.fade-up{animation:rowin .6s both}
+@keyframes pen{0%{background-size:0 3px}25%,92%{background-size:100% 3px}100%{background-size:0 3px}}
+@keyframes arrive{0%,32%{opacity:0;transform:translateY(8px)}46%,90%{opacity:1;transform:none}100%{opacity:0}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes lit1{0%,30%{border-color:var(--ink);background:var(--card)}34%,100%{border-color:var(--rule);background:transparent}}
+@keyframes lit2{0%,33%{border-color:var(--rule);background:transparent}37%,63%{border-color:var(--ink);background:var(--card)}67%,100%{border-color:var(--rule);background:transparent}}
+@keyframes lit3{0%,66%{border-color:var(--rule);background:transparent}70%,96%{border-color:var(--green);background:var(--greenbg)}100%{border-color:var(--rule);background:transparent}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes rowin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (max-width:900px){.habits{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media (max-width:600px){.habits{grid-template-columns:repeat(1,minmax(0,1fr))!important}}
+@media (prefers-reduced-motion:reduce){.pen{animation:none;background-size:100% 3px}.arrive,.bar-grow,.lit1,.lit2,.lit3,.dot,.row-in,.fade-up{animation:none}}
+[hidden]{display:none!important}
+body:has(.pc.dark){background:#15140F}
+.status-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#F0A39B}
+.status-dot.ok{background:#6FCF9F}
+

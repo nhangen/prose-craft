@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prose Craft</title>
+<meta name="description" content="Prose Craft turns AI-written text into human-friendly prose. A writing skill and a filter that sends every violation back to your agent until the text is clean.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400;1,6..72,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="pc" id="pc" style="min-height:100vh">
+
+<!-- NAV -->
+<header style="border-bottom:1px solid var(--rule)">
+<div class="wrap" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;padding-top:14px;padding-bottom:14px">
+<a href="#top" class="serif" style="font-size:24px;font-weight:600;text-decoration:none;letter-spacing:-.01em">Prose Craft</a>
+<nav aria-label="Sections" style="display:flex;flex-wrap:wrap;gap:4px 22px;font-size:14px;font-weight:500">
+<a href="#demo" style="text-decoration:none;padding:10px 0">Examples</a>
+<a href="#rules" style="text-decoration:none;padding:10px 0">Rules</a>
+<a href="#filter" style="text-decoration:none;padding:10px 0">Filter</a>
+<a href="#check" style="text-decoration:none;padding:10px 0">Try it live</a>
+<a href="#install" style="text-decoration:none;padding:10px 0">Install</a>
+<button class="tab" id="mode" type="button" aria-pressed="false" style="padding:6px 14px;min-height:40px">Dark mode</button>
+</nav>
+</div>
+</header>
+
+<!-- HERO -->
+<section id="top" class="wrap" style="padding-top:72px;padding-bottom:72px">
+<div style="display:flex;flex-wrap:wrap;gap:48px;align-items:center">
+<div style="flex:1 1 480px;min-width:0">
+<div class="eyebrow">Made for Claude Code</div>
+<h1 class="serif" style="margin:16px 0 0;font-size:clamp(44px,7vw,84px);line-height:1;letter-spacing:-.025em;font-weight:400">Convert AI text into <em style="font-weight:600">human-friendly prose</em></h1>
+<p style="margin:24px 0 0;font-size:19px;line-height:1.55;color:var(--body);max-width:540px">Prose Craft gives your agent two hard rules, a short list of measured habits, and a filter that sends every violation back until the text is clean.</p>
+<div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:32px">
+<a class="btn" href="#demo">Watch it edit</a>
+<a class="btn btn-ghost" href="#install">Install in two commands</a>
+</div>
+</div>
+
+<div style="flex:1 1 380px;min-width:0">
+<div style="background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:28px;box-shadow:0 1px 0 var(--rule),0 18px 40px -24px rgba(26,25,22,.35)">
+<div class="eyebrow" style="display:flex;align-items:center;gap:8px"><span class="dot"></span>Typical draft</div>
+<p class="serif" style="margin:10px 0 0;font-size:24px;line-height:1.35">Setup takes one command <span class="pen" style="color:var(--badink);padding-bottom:2px">&mdash; no daemon, no account.</span></p>
+<div style="height:1px;background:var(--rule);margin:22px 0"></div>
+<div class="arrive">
+<div class="eyebrow" style="color:var(--green)">Crafted</div>
+<p class="serif" style="margin:10px 0 0;font-size:24px;line-height:1.35">Setup takes one command, <span style="background:var(--fixbg);color:var(--fixink);border-radius:3px;padding:0 3px">with no daemon and no account.</span></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- DEMO -->
+<section id="demo" style="background:var(--band);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+<div class="wrap" style="padding-top:80px;padding-bottom:80px">
+<div class="eyebrow">Intake to output</div>
+<h2 class="serif" style="margin:12px 0 0;font-size:clamp(34px,4.6vw,52px);line-height:1.05;letter-spacing:-.02em;font-weight:400;max-width:760px">Prose Craft in Action</h2>
+<p style="margin:16px 0 0;font-size:17px;line-height:1.6;color:var(--body);max-width:640px">Each draft starts as typical AI-written prose. The slider applies Prose Craft one sentence at a time while the real filter report on the right counts down to zero. These samples are illustrative, written by hand, and checked with the actual filter.</p>
+
+<div role="group" aria-label="Kind of writing" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:32px" id="tabs">
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:28px;margin-top:28px;align-items:stretch">
+
+<div style="flex:1 1 560px;min-width:0;display:flex;flex-direction:column;gap:16px">
+<div style="background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:18px 20px">
+<div class="eyebrow">Intake</div>
+<p class="mono" style="margin:8px 0 0;font-size:14px;line-height:1.6">&gt; <span id="intake"></span></p>
+</div>
+<div aria-hidden="true" class="mono" style="font-size:20px;color:var(--muted);padding-left:20px">&darr;</div>
+<div style="flex:1;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:24px 26px">
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline">
+<div class="eyebrow">Output</div>
+<div class="mono" style="font-size:12px;color:var(--muted)"><span id="vint">0</span>% rewritten</div>
+</div>
+<div class="serif" aria-live="polite" style="margin-top:14px;font-size:20px;line-height:1.75;white-space:pre-wrap" id="segs"></div>
+</div>
+
+<div style="background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:12px 20px 16px">
+<div style="display:flex;align-items:center;gap:16px">
+<button class="btn" id="play" type="button" style="min-width:104px;justify-content:center">Play</button>
+<div style="flex:1;min-width:0">
+<input type="range" min="0" max="100" step="1" id="slide" value="0" aria-label="Amount of Prose Craft applied">
+</div>
+</div>
+<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);padding:0 4px 0 120px" class="mono"><span>typical AI draft</span><span>with Prose Craft</span></div>
+</div>
+</div>
+
+<div style="flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:20px">
+<div style="background:#1A1916;color:#EAE4D4;border-radius:12px;padding:20px 22px">
+<div class="mono" style="font-size:12px;color:#A8A08C">$ python3 scripts/prose-filter.py check draft.md</div>
+<div class="mono" style="font-size:13px;margin-top:14px;display:flex;align-items:center;gap:10px"><span class="status-dot" id="dot"></span><span id="status"></span></div>
+<ul style="list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:10px" id="report">
+</ul>
+<div class="mono" style="margin-top:16px;font-size:12px;color:#A8A08C">exit <span id="exit">1</span></div>
+</div>
+
+<div style="background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px 22px">
+<div class="eyebrow">Sentence rhythm and openers</div>
+<p style="margin:8px 0 0;font-size:14px;line-height:1.5;color:var(--body)">Each bar is one sentence, sized by word count. Striped red means the filter flags it, green means rewritten, dark means it never needed a fix.</p>
+<div style="margin-top:14px;font-size:12px;color:var(--muted)" class="mono">original</div>
+<div aria-hidden="true" style="display:flex;align-items:flex-end;gap:5px;height:84px;border-bottom:1px solid var(--rule)" id="barsA">
+</div>
+<div style="margin-top:12px;font-size:12px;color:var(--muted)" class="mono">current</div>
+<div aria-hidden="true" style="display:flex;align-items:flex-end;gap:5px;height:84px;border-bottom:1px solid var(--rule)" id="barsB">
+</div>
+<div class="mono" style="margin-top:12px;font-size:12px;color:var(--body)"><span id="shortstat"></span></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- RHYTHM -->
+<section id="rhythm" class="wrap" style="padding-top:88px;padding-bottom:88px">
+<div class="eyebrow">Habit &middot; sentence length</div>
+<h2 class="serif" style="margin:12px 0 0;font-size:clamp(34px,4.6vw,52px);line-height:1.05;letter-spacing:-.02em;font-weight:400;max-width:760px">Join choppy sentences so the writing flows.</h2>
+<p style="margin:16px 0 0;font-size:17px;line-height:1.6;color:var(--body);max-width:640px">AI-written fiction chops its ideas into short sentences. A model's sentences ran six words or fewer 44% of the time in my measurements, against 8&ndash;19% for the authors I compared. Drag the slider to join a run of short sentences into one that reasons its way through, and keep a short sentence only where you want emphasis.</p>
+
+<div style="display:flex;flex-wrap:wrap;gap:28px;margin-top:36px;align-items:stretch">
+<div style="flex:1 1 560px;min-width:0;display:flex;flex-direction:column;gap:16px">
+<div style="flex:1;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:24px 26px">
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline">
+<div class="eyebrow">Output</div>
+<div class="mono" style="font-size:12px;color:var(--muted)"><span id="rvint">0</span>% varied</div>
+</div>
+<div class="serif" aria-live="polite" style="margin-top:14px;font-size:20px;line-height:1.75;white-space:pre-wrap" id="rsegs"></div>
+</div>
+<div style="background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:12px 20px 16px">
+<div style="display:flex;align-items:center;gap:16px">
+<button class="btn" id="play2" type="button" style="min-width:104px;justify-content:center">Play</button>
+<div style="flex:1;min-width:0"><input type="range" min="0" max="100" step="1" id="slide2" value="0" aria-label="Amount of sentence variation applied"></div>
+</div>
+<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);padding:0 4px 0 120px" class="mono"><span>monotone</span><span>varied</span></div>
+</div>
+</div>
+
+<div style="flex:1 1 340px;min-width:0;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px 22px">
+<div class="eyebrow">Sentence rhythm</div>
+<p style="margin:8px 0 0;font-size:14px;line-height:1.5;color:var(--body)">Each bar is one sentence, sized by word count.</p>
+<div style="margin-top:14px;font-size:12px;color:var(--muted)" class="mono">original</div>
+<div aria-hidden="true" style="display:flex;align-items:flex-end;gap:6px;height:84px;border-bottom:1px solid var(--rule)" id="rbarsA">
+</div>
+<div style="margin-top:12px;font-size:12px;color:var(--muted)" class="mono">current</div>
+<div aria-hidden="true" style="display:flex;align-items:flex-end;gap:6px;height:84px;border-bottom:1px solid var(--rule)" id="rbarsB">
+</div>
+<div class="mono" style="margin-top:12px;font-size:12px;line-height:1.6;color:var(--body)"><span id="rstat"></span></div>
+</div>
+</div>
+</section>
+
+<!-- RULES + QUIZ -->
+<section id="rules" class="wrap" style="padding-top:88px;padding-bottom:88px">
+<div class="eyebrow">Part 1 &middot; hard rules</div>
+<h2 class="serif" style="margin:12px 0 0;font-size:clamp(34px,4.6vw,52px);line-height:1.05;letter-spacing:-.02em;font-weight:400;max-width:760px">Two rules a script can check.</h2>
+
+<div style="display:flex;flex-wrap:wrap;gap:24px;margin-top:40px">
+<div style="flex:1 1 440px;min-width:0;border:1px solid var(--rule);border-radius:14px;padding:28px">
+<div class="mono" style="font-size:13px;color:var(--red)">RULE 1</div>
+<h3 class="serif" style="margin:8px 0 0;font-size:30px;font-weight:600;letter-spacing:-.01em">Subject first.</h3>
+<p style="margin:12px 0 0;font-size:16px;line-height:1.6;color:var(--body)">No sentence opens with an adverbial. That covers prepositional phrases, infinitive purpose phrases, Because, When, and If clauses, participial openers, and -ly adverbs. Move the phrase after the verb.</p>
+<div style="margin-top:20px;display:flex;flex-direction:column;gap:10px" class="serif">
+<div style="font-size:19px"><span class="seg seg-bad">In parallel, I ran an ablation.</span></div>
+<div style="font-size:19px"><span class="seg seg-fixed">I ran an ablation in parallel.</span></div>
+</div>
+<p class="mono" style="margin:18px 0 0;font-size:12px;line-height:1.6;color:var(--muted)">Fine as openers: Furthermore, However, Therefore, Thus, Also, Then, Still, Finally, Meanwhile, Instead.</p>
+</div>
+
+<div style="flex:1 1 440px;min-width:0;border:1px solid var(--rule);border-radius:14px;padding:28px">
+<div class="mono" style="font-size:13px;color:var(--red)">RULE 2</div>
+<h3 class="serif" style="margin:8px 0 0;font-size:30px;font-weight:600;letter-spacing:-.01em">No em dashes.</h3>
+<p style="margin:12px 0 0;font-size:16px;line-height:1.6;color:var(--body)">Never write the long dash, or a spaced hyphen standing in for one. Reach for a period, a comma, a colon, or parentheses. An en dash inside a number range is fine.</p>
+<div style="margin-top:20px;display:flex;flex-direction:column;gap:10px" class="serif">
+<div style="font-size:19px"><span class="seg seg-bad">The test passed &mdash; barely.</span></div>
+<div style="font-size:19px"><span class="seg seg-fixed">The test passed, barely.</span></div>
+</div>
+<p class="mono" style="margin:18px 0 0;font-size:12px;line-height:1.6;color:var(--muted)">Em dashes were flagged in nine of thirteen blind-test pairs.</p>
+</div>
+</div>
+
+<!-- QUIZ -->
+<div style="margin-top:40px;background:#1A1916;color:#EAE4D4;border-radius:16px;padding:32px 32px 36px">
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px">
+<div class="mono" style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#A8A08C">Would the filter flag it?</div>
+<div class="mono" style="font-size:12px;color:#A8A08C"><span id="qprog"></span></div>
+</div>
+
+<div id="q-active">
+<p class="serif" style="margin:22px 0 0;font-size:clamp(26px,3.4vw,38px);line-height:1.25;min-height:2.5em">&ldquo;<span id="q-text"></span>&rdquo;</p>
+<div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:22px">
+<button id="q-flag" type="button" style="min-height:48px;padding:0 24px;border-radius:999px;border:1px solid #F6D9D4;background:transparent;color:#F6D9D4;font-size:15px;font-weight:500">Flag it</button>
+<button id="q-pass" type="button" style="min-height:48px;padding:0 24px;border-radius:999px;border:1px solid #D5EBDD;background:transparent;color:#D5EBDD;font-size:15px;font-weight:500">Let it pass</button>
+</div>
+<div id="q-answer" hidden>
+<div class="fade-up" aria-live="polite" style="margin-top:22px;padding:16px 18px;border-radius:10px;background:#2A2824">
+<div class="mono" id="q-verdict" style="font-size:13px"></div>
+<p id="q-why" style="margin:8px 0 0;font-size:15px;line-height:1.55;color:#EAE4D4"></p>
+<button id="q-next" type="button" style="margin-top:14px;min-height:44px;padding:0 20px;border-radius:999px;border:1px solid #EAE4D4;background:#EAE4D4;color:#1A1916;font-size:14px;font-weight:600">Next sentence</button>
+</div>
+</div>
+</div>
+
+<div id="q-done" hidden>
+<p class="serif" style="margin:22px 0 0;font-size:clamp(28px,3.6vw,42px);line-height:1.2">You matched the filter on <span id="q-score">0</span> of <span id="q-total">8</span>.</p>
+<p style="margin:10px 0 0;font-size:15px;line-height:1.55;color:#C9C2AE">The filter does not guess. It reads each sentence opener and each dash, so the same input always gets the same verdict.</p>
+<button id="q-restart" type="button" style="margin-top:18px;min-height:44px;padding:0 20px;border-radius:999px;border:1px solid #EAE4D4;background:#EAE4D4;color:#1A1916;font-size:14px;font-weight:600">Play again</button>
+</div>
+</div>
+</section>
+
+<!-- HABITS -->
+<section style="background:var(--band);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+<div class="wrap" style="padding-top:80px;padding-bottom:80px">
+<div class="eyebrow">Part 2 &middot; measured habits</div>
+<h2 class="serif" style="margin:12px 0 0;font-size:clamp(34px,4.6vw,52px);line-height:1.05;letter-spacing:-.02em;font-weight:400;max-width:760px">Habits that fix the way AI writes.</h2>
+<p style="margin:16px 0 0;font-size:17px;line-height:1.6;color:var(--body);max-width:640px">The skill tells the agent what to write, not only what to avoid, because a rule against something leaves room to argue. These habits guide the draft as the agent writes it. The script does not check them.</p>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:40px" class="habits">
+<div style="background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:22px;grid-column:span 1;min-width:0"><div class="mono" style="font-size:12px;color:var(--muted)">LENGTH</div><h3 class="serif" style="margin:6px 0 0;font-size:22px;font-weight:600">Vary the sentences.</h3><p style="margin:8px 0 0;font-size:15px;line-height:1.55;color:var(--body)">Let a long sentence carry the reasoning. Use a short one only where it earns the stress.</p></div>
+<div style="background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:22px;min-width:0"><div class="mono" style="font-size:12px;color:var(--muted)">COMPLETENESS</div><h3 class="serif" style="margin:6px 0 0;font-size:22px;font-weight:600">Give the full account.</h3><p style="margin:8px 0 0;font-size:15px;line-height:1.55;color:var(--body)">A PR body or email gets what changed, why, the caveats, and the next step. Readers preferred the thorough version every time.</p></div>
+<div style="background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:22px;min-width:0"><div class="mono" style="font-size:12px;color:var(--muted)">STRUCTURE</div><h3 class="serif" style="margin:6px 0 0;font-size:22px;font-weight:600">Match the register.</h3><p style="margin:8px 0 0;font-size:15px;line-height:1.55;color:var(--body)">Headings and lists for reference material. Plain paragraphs for a chat message, an email, or a story.</p></div>
+<div style="background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:22px;min-width:0"><div class="mono" style="font-size:12px;color:var(--muted)">SPECIFICS</div><h3 class="serif" style="margin:6px 0 0;font-size:22px;font-weight:600">Lead with the vivid fact.</h3><p style="margin:8px 0 0;font-size:15px;line-height:1.55;color:var(--body)">Slide titles state the conclusion, not the topic. No Challenge, Solution, Results template.</p></div>
+<div style="background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:22px;min-width:0"><div class="mono" style="font-size:12px;color:var(--muted)">FICTION</div><h3 class="serif" style="margin:6px 0 0;font-size:22px;font-weight:600">Pick details you have not used.</h3><p style="margin:8px 0 0;font-size:15px;line-height:1.55;color:var(--body)">A model left to itself writes the same story: a lighthouse keeper, the same few names, the same opening. The skill steers it toward fresh details and a story that builds to a turn.</p></div>
+<div style="background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:22px;min-width:0"><div class="mono" style="font-size:12px;color:var(--muted)">CLOSINGS</div><h3 class="serif" style="margin:6px 0 0;font-size:22px;font-weight:600">End on a concrete line.</h3><p style="margin:8px 0 0;font-size:15px;line-height:1.55;color:var(--body)">A landing page ends on its best fact, such as &ldquo;Setup takes one command.&rdquo; It skips &ldquo;Contact us today to learn more!&rdquo;</p></div>
+</div>
+</div>
+</section>
+
+<!-- FILTER -->
+<section id="filter" class="wrap" style="padding-top:88px;padding-bottom:88px">
+<div class="eyebrow">The filter</div>
+<h2 class="serif" style="margin:12px 0 0;font-size:clamp(34px,4.6vw,52px);line-height:1.05;letter-spacing:-.02em;font-weight:400;max-width:760px">Flags problems for the agent to fix</h2>
+<p style="margin:16px 0 0;font-size:17px;line-height:1.6;color:var(--body);max-width:640px">The script needs only Python 3. It skips fenced and inline code, prints each violation with its line, and exits 0 when the text is clean. Nothing runs on its own, because the plugin installs no hooks.</p>
+
+<div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:40px;align-items:stretch">
+<div class="lit1" style="flex:1 1 260px;min-width:0;border:2px solid var(--rule);border-radius:14px;padding:22px">
+<div class="mono" style="font-size:12px;color:var(--muted)">ROUND 1</div>
+<h3 class="serif" style="margin:6px 0 0;font-size:24px;font-weight:600">Check</h3>
+<p class="mono" style="margin:12px 0 0;font-size:12px;line-height:1.6;color:var(--red)">exit 1 &middot; violations found</p>
+<p style="margin:8px 0 0;font-size:15px;line-height:1.55;color:var(--body)">The report lists each flagged sentence and a correction message.</p>
+</div>
+<div aria-hidden="true" class="mono" style="align-self:center;font-size:22px;color:var(--muted)">&rarr;</div>
+<div class="lit2" style="flex:1 1 260px;min-width:0;border:2px solid var(--rule);border-radius:14px;padding:22px">
+<div class="mono" style="font-size:12px;color:var(--muted)">ROUND 2</div>
+<h3 class="serif" style="margin:6px 0 0;font-size:24px;font-weight:600">Regenerate</h3>
+<p class="mono" style="margin:12px 0 0;font-size:12px;line-height:1.6;color:var(--muted)">message on stdin</p>
+<p style="margin:8px 0 0;font-size:15px;line-height:1.55;color:var(--body)">Your agent receives the correction message and prints corrected text.</p>
+</div>
+<div aria-hidden="true" class="mono" style="align-self:center;font-size:22px;color:var(--muted)">&rarr;</div>
+<div class="lit3" style="flex:1 1 260px;min-width:0;border:2px solid var(--rule);border-radius:14px;padding:22px">
+<div class="mono" style="font-size:12px;color:var(--muted)">ROUND 3 OR SOONER</div>
+<h3 class="serif" style="margin:6px 0 0;font-size:24px;font-weight:600">Clean</h3>
+<p class="mono" style="margin:12px 0 0;font-size:12px;line-height:1.6;color:var(--green)">exit 0 &middot; no violations</p>
+<p style="margin:8px 0 0;font-size:15px;line-height:1.55;color:var(--body)">Exit 1 if it still fails.<br>Exit 2 if your agent fails.</p>
+</div>
+</div>
+
+<div style="margin-top:32px;background:#1A1916;color:#EAE4D4;border-radius:12px;padding:22px 24px" class="mono">
+<div style="font-size:12px;color:#A8A08C"># bring your own agent</div>
+<div style="font-size:13px;line-height:2;margin-top:6px;overflow-x:auto;white-space:nowrap">
+<div>python3 scripts/prose-filter.py run --agent "claude -p" draft.md</div>
+<div>python3 scripts/prose-filter.py run --agent "codex exec -" draft.md</div>
+<div>python3 scripts/prose-filter.py run --agent "ollama run MODEL" draft.md</div>
+</div>
+<div style="font-size:12px;color:#A8A08C;margin-top:10px;white-space:normal">--max-rounds N sets the attempts (default 3).</div>
+</div>
+</section>
+
+<!-- YOUR COPY -->
+<section id="check" style="background:var(--band);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+<div class="wrap" style="padding-top:88px;padding-bottom:88px">
+<div class="eyebrow">Your copy</div>
+<h2 class="serif" style="margin:12px 0 0;font-size:clamp(34px,4.6vw,52px);line-height:1.05;letter-spacing:-.02em;font-weight:400;max-width:760px">Try Prose Craft Live</h2>
+<p style="margin:16px 0 0;font-size:17px;line-height:1.6;color:var(--body);max-width:640px">This is the same check the plugin runs, ported to run in your browser. It reads two rules: no em dash, and no sentence that opens with an adverbial. This checker keeps your text in your browser. The workbench goes one step further and has Claude rewrite each flagged sentence.</p>
+<div style="display:flex;flex-wrap:wrap;gap:20px;margin-top:40px;align-items:stretch">
+<div style="flex:1 1 440px;min-width:0;display:flex;flex-direction:column;gap:10px">
+<label for="chk-src" class="mono" style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Your copy</label>
+<textarea id="chk-src" spellcheck="true" style="box-sizing:border-box;width:100%;min-height:260px;resize:vertical;background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;font-family:'Newsreader',Georgia,serif;font-size:19px;line-height:1.65">To keep your machines in step, dotsync mirrors your config files through a git repo. Setup takes one command — no daemon, no account. Because it is plain git underneath, every change is reviewable and reversible.</textarea>
+</div>
+<div style="flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:10px">
+<div class="mono" style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Filter report</div>
+<div style="background:#1A1916;color:#EAE4D4;border-radius:12px;padding:20px 22px;flex:1">
+<div class="mono" style="font-size:13px;display:flex;align-items:center;gap:10px" aria-live="polite"><span class="status-dot" id="chkdot"></span><span id="chkstatus"></span></div>
+<ul style="list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:10px;max-height:240px;overflow:auto" id="chkReport">
+</ul>
+<div class="mono" style="margin-top:16px;font-size:12px;color:#A8A08C">exit <span id="chkexit">1</span></div>
+</div>
+</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:12px 20px;margin-top:28px;align-items:center">
+<a class="btn" href="https://claude.ai/artifact/U14dzUR4TaszeSjP27NnUV">Craft it in the workbench &rarr;</a>
+<span style="font-size:14px;line-height:1.5;color:var(--body);max-width:520px">The workbench sends your text to Claude on your own account. It re-checks the result and asks Claude to fix anything still flagged, for up to three rounds.</span>
+</div>
+</div>
+</section>
+
+<!-- EVIDENCE -->
+<section id="evidence" style="background:var(--band);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+<div class="wrap" style="padding-top:80px;padding-bottom:80px">
+<div class="eyebrow">Evidence</div>
+<h2 class="serif" style="margin:12px 0 0;font-size:clamp(34px,4.6vw,52px);line-height:1.05;letter-spacing:-.02em;font-weight:400;max-width:760px">What the measurements show.</h2>
+
+<div style="display:flex;flex-wrap:wrap;gap:24px;margin-top:40px">
+<div style="flex:1 1 440px;min-width:0;background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:28px">
+<div class="eyebrow">Em dash rate</div>
+<p style="margin:8px 0 22px;font-size:14px;line-height:1.5;color:var(--body)">An open-weights model fine-tuned against em dashes, on a held-out set of prompts.</p>
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><div class="mono" style="width:64px;font-size:12px;color:var(--muted)">base</div><div style="flex:1;background:var(--band);border-radius:4px"><div class="bar-grow" style="width:80%;height:28px;background:var(--red);border-radius:4px"></div></div><div class="mono" style="width:44px;font-size:14px;font-weight:500">80%</div></div>
+<div style="display:flex;align-items:center;gap:12px"><div class="mono" style="width:64px;font-size:12px;color:var(--muted)">tuned</div><div style="flex:1;background:var(--band);border-radius:4px"><div class="bar-grow" style="width:9%;height:28px;background:var(--green);border-radius:4px;animation-delay:.3s"></div></div><div class="mono" style="width:44px;font-size:14px;font-weight:500">9%</div></div>
+</div>
+
+<div style="flex:1 1 440px;min-width:0;background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:28px">
+<div class="eyebrow">Sentences of six words or fewer</div>
+<p style="margin:8px 0 22px;font-size:14px;line-height:1.5;color:var(--body)">Share of sentences in AI-written fiction versus the authors I compared.</p>
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><div class="mono" style="width:64px;font-size:12px;color:var(--muted)">model</div><div style="flex:1;background:var(--band);border-radius:4px"><div class="bar-grow" style="width:44%;height:28px;background:var(--red);border-radius:4px"></div></div><div class="mono" style="width:64px;font-size:14px;font-weight:500">44%</div></div>
+<div style="display:flex;align-items:center;gap:12px"><div class="mono" style="width:64px;font-size:12px;color:var(--muted)">masters</div><div style="flex:1;background:var(--band);border-radius:4px"><div class="bar-grow" style="width:19%;height:28px;background:var(--green);border-radius:4px;animation-delay:.3s"></div></div><div class="mono" style="width:64px;font-size:14px;font-weight:500">8&ndash;19%</div></div>
+</div>
+</div>
+
+<div style="margin-top:24px;background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:28px;display:flex;flex-wrap:wrap;gap:24px 48px">
+<div style="flex:1 1 360px;min-width:0">
+<div class="eyebrow">Not built to beat detectors</div>
+<p style="margin:10px 0 0;font-size:16px;line-height:1.6;color:var(--body)">Prose Craft does not try to pass AI detection. The goal is prose that reads well to a person, and detector scores do not measure that.</p>
+</div>
+<div style="flex:1 1 360px;min-width:0">
+<div class="eyebrow">No facts added</div>
+<p style="margin:10px 0 0;font-size:16px;line-height:1.6;color:var(--body)">Prose Craft changes how a draft is written, not what it says. It uses only the facts you supply and adds no dates, numbers, people or claims of its own.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- HARNESSES -->
+<section id="harnesses" style="background:var(--band);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+<div class="wrap" style="padding-top:80px;padding-bottom:80px">
+<div class="eyebrow">Other harnesses</div>
+<h2 class="serif" style="margin:12px 0 0;font-size:clamp(34px,4.6vw,52px);line-height:1.05;letter-spacing:-.02em;font-weight:400;max-width:760px">Works in any harness.</h2>
+<p style="margin:16px 0 0;font-size:17px;line-height:1.6;color:var(--body);max-width:680px">That includes Codex and OpenCode. Prose Craft is a standard <span class="mono" style="font-size:15px;background:var(--card);padding:2px 6px;border-radius:4px">SKILL.md</span> folder, so any harness that reads Agent Skills can load it. Drop <span class="mono" style="font-size:15px;background:var(--card);padding:2px 6px;border-radius:4px">prose-craft</span> into its skills directory, then ask for it by name or let the description trigger it. The filter is plain Python 3 and takes any agent command.</p>
+<div style="display:flex;flex-wrap:wrap;gap:24px;margin-top:36px;align-items:stretch">
+<div style="flex:1 1 440px;min-width:0;background:#1A1916;color:#EAE4D4;border-radius:14px;padding:24px 26px" class="mono">
+<div style="font-size:12px;color:#A8A08C"># Codex: built-in skill installer</div>
+<div style="font-size:14px;margin:6px 0 20px;overflow-x:auto;white-space:nowrap">python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py --repo nhangen/prose-craft --path skills/prose-craft</div>
+<div style="font-size:12px;color:#A8A08C"># OpenCode: clone, then copy the folder</div>
+<div style="font-size:14px;margin:6px 0 4px;overflow-x:auto;white-space:nowrap">git clone https://github.com/nhangen/prose-craft</div>
+<div style="font-size:14px;margin:0;overflow-x:auto;white-space:nowrap">cp -R prose-craft/skills/prose-craft ~/.config/opencode/skills/</div>
+</div>
+<div style="flex:1 1 360px;min-width:0;background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:24px 26px">
+<div class="eyebrow">Then</div>
+<ul style="margin:12px 0 0;padding:0 0 0 20px;font-size:16px;line-height:1.7;color:var(--body)">
+<li>Ask the agent to write with <span class="mono" style="font-size:14px">prose-craft</span>, or let it load on its own when you draft prose.</li>
+<li>Run the filter from inside the installed skill folder: <span class="mono" style="font-size:14px">python3 <span style="white-space:nowrap">scripts/prose-filter.py</span> check draft.md</span>.</li>
+<li>Pass any agent to <span class="mono" style="font-size:14px">run --agent</span> to loop until clean.</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
+<!-- INSTALL -->
+<section id="install" class="wrap" style="padding-top:88px;padding-bottom:88px">
+<div style="display:flex;flex-wrap:wrap;gap:48px">
+<div style="flex:1 1 420px;min-width:0">
+<div class="eyebrow">Install</div>
+<h2 class="serif" style="margin:12px 0 0;font-size:clamp(34px,4.6vw,52px);line-height:1.05;letter-spacing:-.02em;font-weight:400">Installs in two commands.</h2>
+<p style="margin:16px 0 0;font-size:17px;line-height:1.6;color:var(--body)">It runs whenever you write copy. Claude Code loads it on its own for prose a person will read, or you can call it by name with <span class="mono" style="font-size:15px;background:var(--band);padding:2px 6px;border-radius:4px">/prose-craft</span>.</p>
+<p style="margin:16px 0 0;font-size:17px;line-height:1.6;color:var(--body)">Prose Craft ships in <a href="https://github.com/nhangen/claude-plugins" style="font-weight:600">nhangen/claude-plugins</a>, a marketplace of useful Claude Code plugins.</p>
+<div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:28px">
+<a class="btn" href="https://github.com/nhangen/claude-plugins">Browse the marketplace</a>
+<a class="btn btn-ghost" href="https://github.com/nhangen/prose-craft">Read the source</a>
+</div>
+</div>
+<div style="flex:1 1 460px;min-width:0">
+<div style="background:#1A1916;color:#EAE4D4;border-radius:14px;padding:24px 26px" class="mono">
+<div style="font-size:12px;color:#A8A08C"># add the marketplace</div>
+<div style="font-size:14px;margin:6px 0 20px;overflow-x:auto;white-space:nowrap">claude plugin marketplace add nhangen/claude-plugins</div>
+<div style="font-size:12px;color:#A8A08C"># install the plugin</div>
+<div style="font-size:14px;margin:6px 0 20px;overflow-x:auto;white-space:nowrap">claude plugin install prose-craft@nhangen-tools</div>
+<div style="font-size:12px;color:#A8A08C"># check a draft</div>
+<div style="font-size:14px;margin:6px 0 0;overflow-x:auto;white-space:nowrap">python3 scripts/prose-filter.py check draft.md</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer style="background:#1A1916;color:#EAE4D4">
+<div class="wrap" style="padding-top:48px;padding-bottom:48px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:28px">
+<div style="min-width:0">
+<div class="serif" style="font-size:28px;font-weight:600">Prose Craft</div>
+<p style="margin:8px 0 0;font-size:14px;line-height:1.6;color:#C9C2AE;max-width:420px">Version 0.1.2 &middot; MIT license<br>Made by <a href="https://github.com/nhangen" style="color:#EAE4D4">@nhangen</a> to make writing less bad.</p>
+</div>
+<nav aria-label="Links" style="display:flex;flex-wrap:wrap;gap:8px 28px;font-size:15px;align-items:flex-start">
+<a href="https://x.com/natehangen" style="color:#EAE4D4;padding:10px 0">X &middot; @natehangen</a>
+<a href="https://github.com/nhangen" style="color:#EAE4D4;padding:10px 0">GitHub &middot; nhangen</a>
+<a href="https://github.com/nhangen/claude-plugins" style="color:#EAE4D4;padding:10px 0">Marketplace &middot; claude-plugins</a>
+<a href="https://github.com/nhangen/prose-craft" style="color:#EAE4D4;padding:10px 0">Source &middot; prose-craft</a>
+</nav>
+</div>
+</footer>
+
+</div>
+<script src="prose-filter.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
