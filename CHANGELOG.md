@@ -1,10 +1,12 @@
 # Changelog
 
-## Unreleased (0.1.2)
+## 0.1.2
 
 - Move `scripts/` into `skills/prose-craft/scripts/` so any skill install (Codex installer, OpenCode, a manual copy) brings the filter with it.
 - Skill: call the filter by a path relative to the skill folder.
 - README: add OpenCode discovery paths and invocation.
+- Filter: stop flagging nouns that end in -ing (Nothing, Something, Marketing, Engineering and similar) as participial openers.
+- README: drop the notes that said the plugin was only tested in Claude Code.
 
 ## 0.1.1
 
