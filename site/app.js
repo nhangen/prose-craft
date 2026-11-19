@@ -17,20 +17,21 @@
     const target = event.target instanceof Element ? event.target.closest("a, button") : null;
     if (!target || typeof window.gtag !== "function") return;
     if (event.type === "auxclick" && (!(target instanceof HTMLAnchorElement) || event.button !== 1)) return;
+    if (event.type === "click" && event.button !== 0) return;
 
     let destination;
     if (target instanceof HTMLAnchorElement) {
       const url = new URL(target.href, window.location.href);
-      destination = url.origin === window.location.origin
-        ? `${url.pathname}${url.hash}`
-        : `${url.hostname}${url.pathname}`;
+      if (url.protocol === "http:" || url.protocol === "https:") {
+        destination = url.origin === window.location.origin
+          ? `${url.pathname}${url.hash}`
+          : `${url.hostname}${url.pathname}`;
+      }
     }
     const section = target.closest("section, header, footer");
     const parameters = {
       element_type: target instanceof HTMLAnchorElement ? "link" : "button",
       element_label: (target.getAttribute("aria-label") || target.textContent || "").trim().slice(0, 80),
-      page_location: `${window.location.origin}${window.location.pathname}`,
-      page_referrer: document.referrer ? new URL(document.referrer).origin : "",
     };
     if (section?.id) parameters.section_id = section.id;
     if (destination) parameters.destination = destination;
