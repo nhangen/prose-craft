@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-HERE = Path(__file__).parent.parent / "scripts"
+HERE = Path(__file__).parent.parent / "skills" / "prose-craft" / "scripts"
 FILTER = str(HERE / "prose-filter.py")
 FIXER = ("import sys\nt = sys.stdin.read().split('DRAFT\\n', 1)[1]\n"
          "print(t.replace('\\u2014', ', ').replace('In parallel, I ran it.', 'I ran it in parallel.'))\n")

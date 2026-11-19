@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2
+
+- Move `scripts/` into `skills/prose-craft/scripts/` so any skill install (Codex installer, OpenCode, a manual copy) brings the filter with it.
+- Skill: call the filter by a path relative to the skill folder.
+- README: add OpenCode discovery paths and invocation.
+
 ## 0.1.1
 
 - Skill: add a serial comma habit (house style, not checked by the filter).

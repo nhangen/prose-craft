@@ -5,7 +5,7 @@ A Claude Code plugin that makes AI writing less bad. It is not trying to imitate
 It has two parts:
 
 - **A skill.** `skills/prose-craft/SKILL.md` loads when the agent drafts or revises prose a person will read. Part 1 holds two hard rules: subject first (no sentence opens with an adverbial phrase) and no em dashes. Part 2 holds habits measured on baseline model output: varied sentence length, complete sentences, thorough documents, concrete closings.
-- **A filter.** `scripts/prose-filter.py` checks finished text against the two hard rules and feeds the violations back to any agent until the text is clean. It has no dependencies beyond Python 3.
+- **A filter.** `skills/prose-craft/scripts/prose-filter.py` checks finished text against the two hard rules and feeds the violations back to any agent until the text is clean. It has no dependencies beyond Python 3.
 
 The skill shapes the draft as it is written. The filter checks the result. Nothing runs automatically: there are no hooks.
 
@@ -20,31 +20,32 @@ The skill loads on its own when a task matches its description, or you can load 
 
 ## Other harnesses
 
-The skill is a standard `SKILL.md` folder, so any harness that reads Agent Skills can load it. Clone this repo, copy `skills/prose-craft` into the harness's skills directory, then ask for `prose-craft` by name or let the description trigger it.
+The skill is a standard `SKILL.md` folder that carries its own filter in `scripts/`, so any harness that reads Agent Skills can load it and run the check. Ask for `prose-craft` by name, or let the description trigger it.
 
-Codex has a built-in installer that needs no clone:
+**Codex** has a built-in installer that needs no clone:
 
 ```bash
 python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
   --repo nhangen/prose-craft --path skills/prose-craft
 ```
 
-For OpenCode, or Codex per repository, clone and copy:
+**OpenCode** reads skills from `~/.config/opencode/skills` (global) and `.opencode/skills` (per project). It also reads `~/.claude/skills`, `~/.agents/skills` and the project `.claude/skills` and `.agents/skills`. Clone and copy the folder into one of them:
 
 ```bash
 git clone https://github.com/nhangen/prose-craft
-cp -R prose-craft/skills/prose-craft ~/.config/opencode/skills/   # OpenCode
-cp -R prose-craft/skills/prose-craft .agents/skills/              # Codex, per repository
+cp -R prose-craft/skills/prose-craft ~/.config/opencode/skills/
 ```
 
-The installer copies only the skill folder. The filter is plain Python 3, so it runs anywhere, but you need a clone for `scripts/prose-filter.py`. I have only tested the plugin in Claude Code.
+OpenCode lists the skill to the model, which loads it with its `skill` tool. You can also write `@prose-craft` in a prompt. Paths inside a skill resolve relative to its `SKILL.md`, so `scripts/prose-filter.py` is found after a plain copy.
+
+I have only tested the plugin in Claude Code.
 
 ## The filter
 
 Check a file:
 
 ```bash
-python3 scripts/prose-filter.py check draft.md
+python3 skills/prose-craft/scripts/prose-filter.py check draft.md
 ```
 
 It exits 0 when the text is clean, 1 when it finds violations (it prints each one with its line and a correction message), and 2 on a read error. Fenced code and inline code are skipped.
@@ -52,14 +53,14 @@ It exits 0 when the text is clean, 1 when it finds violations (it prints each on
 Have it regenerate until clean. The command receives the correction message on stdin and prints the corrected text on stdout:
 
 ```bash
-python3 scripts/prose-filter.py run --agent "claude -p" draft.md
-python3 scripts/prose-filter.py run --agent "codex exec -" draft.md
-python3 scripts/prose-filter.py run --agent "ollama run MODEL" draft.md
+python3 skills/prose-craft/scripts/prose-filter.py run --agent "claude -p" draft.md
+python3 skills/prose-craft/scripts/prose-filter.py run --agent "codex exec -" draft.md
+python3 skills/prose-craft/scripts/prose-filter.py run --agent "ollama run MODEL" draft.md
 ```
 
 `--max-rounds N` sets the number of attempts (default 3). The command exits 1 if the text still fails after the last round and 2 if the agent command fails. I have only tested it live with `claude -p`.
 
-`scripts/reject-emdash.py` is a smaller checker for dashes alone.
+`skills/prose-craft/scripts/reject-emdash.py` is a smaller checker for dashes alone.
 
 ## What the filter checks
 
