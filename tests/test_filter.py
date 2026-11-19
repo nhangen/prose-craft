@@ -42,6 +42,12 @@ class Check(unittest.TestCase):
                      "Everything passed, so the release shipped.\n"):
             self.assertEqual(run(["check", "-"], text).returncode, 0, text)
 
+    def test_a_noun_ending_in_ing_is_not_a_participial_opener(self):
+        for text in ("Marketing copy ends on its best fact, such as a number.\n",
+                     "Engineering teams ship, and the changelog records it.\n",
+                     "Accounting rules differ, so the totals do too.\n"):
+            self.assertEqual(run(["check", "-"], text).returncode, 0, text)
+
     def test_a_participial_opener_is_still_reported(self):
         r = run(["check", "-"], "Following the lecture, she wrote up her notes.\n")
         self.assertEqual(r.returncode, 1)

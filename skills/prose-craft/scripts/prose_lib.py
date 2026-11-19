@@ -27,7 +27,8 @@ OPENER_PREPS = {
 }
 CLAUSE_OPENERS = {"where", "wherever"}
 NOT_PARTICIPLES = {"nothing", "something", "anything", "everything", "morning", "evening", "king", "thing",
-                   "ring", "spring", "string", "wing", "ceiling", "building", "meaning", "feeling", "ending"}
+                   "ring", "spring", "string", "wing", "ceiling", "building", "meaning", "feeling", "ending",
+                   "marketing", "engineering", "accounting", "advertising", "publishing", "programming"}
 CONJUNCTIVE = {"furthermore", "additionally", "moreover", "however", "therefore", "thus", "also", "instead",
                "then", "still", "finally", "meanwhile", "similarly", "likewise", "nevertheless", "nonetheless"}
 
