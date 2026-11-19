@@ -29,6 +29,8 @@
     const parameters = {
       element_type: target instanceof HTMLAnchorElement ? "link" : "button",
       element_label: (target.getAttribute("aria-label") || target.textContent || "").trim().slice(0, 80),
+      page_location: `${window.location.origin}${window.location.pathname}`,
+      page_referrer: document.referrer ? new URL(document.referrer).origin : "",
     };
     if (section?.id) parameters.section_id = section.id;
     if (destination) parameters.destination = destination;
