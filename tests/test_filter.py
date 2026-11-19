@@ -36,6 +36,17 @@ class Check(unittest.TestCase):
         self.assertEqual(r.returncode, 1)
         self.assertIn("line 1: sentence opens with an adverbial", r.stdout)
 
+    def test_a_subject_ending_in_ing_is_not_a_participial_opener(self):
+        for text in ("Nothing runs on its own, because the plugin installs no hooks.\n",
+                     "Something broke, and the build stopped.\n",
+                     "Everything passed, so the release shipped.\n"):
+            self.assertEqual(run(["check", "-"], text).returncode, 0, text)
+
+    def test_a_participial_opener_is_still_reported(self):
+        r = run(["check", "-"], "Following the lecture, she wrote up her notes.\n")
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("sentence opens with an adverbial", r.stdout)
+
     def test_fenced_and_inline_code_are_skipped(self):
         self.assertEqual(run(["check", "-"], "Use `a — b` here.\n\n```\nIn code — ignored\n```\n").returncode, 0)
 

@@ -26,6 +26,8 @@ OPENER_PREPS = {
     "unless", "whenever",
 }
 CLAUSE_OPENERS = {"where", "wherever"}
+NOT_PARTICIPLES = {"nothing", "something", "anything", "everything", "morning", "evening", "king", "thing",
+                   "ring", "spring", "string", "wing", "ceiling", "building", "meaning", "feeling", "ending"}
 CONJUNCTIVE = {"furthermore", "additionally", "moreover", "however", "therefore", "thus", "also", "instead",
                "then", "still", "finally", "meanwhile", "similarly", "likewise", "nevertheless", "nonetheless"}
 
@@ -46,7 +48,7 @@ def is_adverbial_opener(sentence):
         return "," in sentence
     if first.endswith("ly") and len(first) > 3:
         return sentence.lstrip().lower().startswith(first + ",")
-    return first.endswith("ing") and "," in lead
+    return first.endswith("ing") and first not in NOT_PARTICIPLES and "," in lead
 
 
 def adverbial_opener_share(text):
