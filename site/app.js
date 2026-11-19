@@ -13,6 +13,28 @@
     return node;
   };
 
+  document.addEventListener("click", (event) => {
+    const target = event.target instanceof Element ? event.target.closest("a, button") : null;
+    if (!target || typeof window.gtag !== "function") return;
+
+    let destination;
+    if (target instanceof HTMLAnchorElement) {
+      const url = new URL(target.href, window.location.href);
+      destination = url.origin === window.location.origin
+        ? `${url.pathname}${url.hash}`
+        : `${url.hostname}${url.pathname}`;
+    }
+    const section = target.closest("section, header, footer");
+    const parameters = {
+      element_type: target instanceof HTMLAnchorElement ? "link" : "button",
+      element_label: (target.getAttribute("aria-label") || target.textContent || "").trim().slice(0, 80),
+      section_id: section?.id || undefined,
+    };
+    if (target.id) parameters.element_id = target.id;
+    if (destination) parameters.destination = destination;
+    window.gtag("event", "site_click", parameters);
+  });
+
   const CHK_EXAMPLE = $("chk-src").value;
 
   const SAMPLES = [
