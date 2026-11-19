@@ -22,13 +22,22 @@ The skill loads on its own when a task matches its description, or you can load 
 
 The skill is a standard `SKILL.md` folder, so any harness that reads Agent Skills can load it. Clone this repo, copy `skills/prose-craft` into the harness's skills directory, then ask for `prose-craft` by name or let the description trigger it.
 
+Codex has a built-in installer that needs no clone:
+
+```bash
+python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
+  --repo nhangen/prose-craft --path skills/prose-craft
+```
+
+For OpenCode, or Codex per repository, clone and copy:
+
 ```bash
 git clone https://github.com/nhangen/prose-craft
 cp -R prose-craft/skills/prose-craft ~/.config/opencode/skills/   # OpenCode
 cp -R prose-craft/skills/prose-craft .agents/skills/              # Codex, per repository
 ```
 
-The filter is plain Python 3, so it runs anywhere. Point it at your clone's `scripts/prose-filter.py`. I have only tested the plugin in Claude Code.
+The installer copies only the skill folder. The filter is plain Python 3, so it runs anywhere, but you need a clone for `scripts/prose-filter.py`. I have only tested the plugin in Claude Code.
 
 ## The filter
 
