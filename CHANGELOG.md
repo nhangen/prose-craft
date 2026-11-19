@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.2
+## Unreleased (0.1.2)
 
 - Move `scripts/` into `skills/prose-craft/scripts/` so any skill install (Codex installer, OpenCode, a manual copy) brings the filter with it.
 - Skill: call the filter by a path relative to the skill folder.
