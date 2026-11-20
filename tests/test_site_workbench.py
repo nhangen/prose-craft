@@ -23,7 +23,7 @@ def run_app(initial=None, inputs=()):
 
 
 def carried(text):
-    return f"{WORKBENCH_URL}#text={quote(text, safe='')}"
+    return WORKBENCH_URL + "#text=" + quote(text, safe="!*'()")
 
 
 class TestWorkbenchButton(unittest.TestCase):
