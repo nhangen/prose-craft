@@ -52,9 +52,23 @@ const src = element("chk-src", {
   defaultValue: textareaDefault("chk-src"),
   value: spec.initial === undefined ? textareaDefault("chk-src") : spec.initial,
 });
+// The property and the attribute share one store, as on a real anchor, so a
+// draft written through either route shows up in hrefWrites.
+const attrs = { href: baseHref };
+const hrefWrites = [];
+function writeAttr(name, value) {
+  if (name === "href") hrefWrites.push(String(value));
+  attrs[name] = String(value);
+}
 const link = element("chk-workbench", {
-  href: baseHref,
-  getAttribute(name) { return name === "href" ? baseHref : null; },
+  getAttribute(name) { return name in attrs ? attrs[name] : null; },
+  setAttribute: writeAttr,
+});
+Object.defineProperty(link, "href", {
+  get() { return attrs.href; },
+  set(value) { writeAttr("href", value); },
+  enumerable: true,
+  configurable: true,
 });
 const elements = { "chk-src": src, "chk-workbench": link };
 
@@ -107,4 +121,5 @@ for (const value of allValues) {
   }));
   out.navigates.push(navigations[0] || null);
 }
+out.hrefWrites = hrefWrites;
 process.stdout.write(JSON.stringify(out));
