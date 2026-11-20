@@ -128,7 +128,7 @@ function click(type, overrides = {}) {
 // and each input value, recording where the click handler sends the browser.
 out.navigates = [];
 out.prevented = [];
-const allValues = [spec.initial, ...spec.inputs].filter((v) => v !== undefined);
+const allValues = [spec.initial, ...(spec.inputs || [])].filter((v) => v !== undefined);
 for (const value of allValues) {
   src.value = value;
   const result = click("click");
