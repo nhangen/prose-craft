@@ -37,7 +37,7 @@ class TestWorkbenchButton(unittest.TestCase):
 @unittest.skipUnless(shutil.which("node"), "node is required to run site/app.js")
 class TestWorkbenchLink(unittest.TestCase):
     def test_example_copy_keeps_base_url_at_setup(self):
-        self.assertEqual(run_app()["afterSetup"], WORKBENCH_URL)
+        self.assertEqual(run_app()["setupClick"], WORKBENCH_URL)
 
     def test_restored_draft_is_carried_at_setup(self):
         # The anchor href stays at the bare URL, but a click at setup time

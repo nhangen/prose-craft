@@ -100,6 +100,9 @@ vm.runInContext(fs.readFileSync(filterPath, "utf8"), context, { filename: filter
 vm.runInContext(fs.readFileSync(appPath, "utf8"), context, { filename: appPath });
 
 const out = { example: src.defaultValue, base: baseHref, afterSetup: link.href, afterInput: [] };
+// A click before any input, with the textarea still holding its initial or
+// example text.
+out.setupClick = click("click").navigated;
 for (const value of spec.inputs || []) {
   src.value = value;
   (listeners["chk-src:input"] || []).forEach((fn) => fn({ target: src }));
