@@ -42,7 +42,7 @@
   document.addEventListener("auxclick", trackClick, true);
 
   const CHK_EXAMPLE = $("chk-src").defaultValue;
-  const WORKBENCH_URL = "https://claude.ai/artifact/U14dzUR4TaszeSjP27NnUV";
+  const WORKBENCH_URL = $("chk-workbench").getAttribute("href");
 
   function drawWorkbenchLink() {
     const text = $("chk-src").value.trim();
