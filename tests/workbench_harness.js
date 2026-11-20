@@ -1,6 +1,7 @@
-// Loads site/app.js against a stub DOM and reports the workbench href at
-// setup plus the URL the click handler would navigate to after each input
-// event. Usage:
+// Loads site/app.js against a stub DOM, simulates input events and clicks on
+// the workbench link, and reports the link's href, where each click
+// navigates, whether it cancelled the default, and every write the app made
+// to the link. Usage:
 //   node workbench_harness.js <app.js> '<json: {initial, inputs}>'
 "use strict";
 const fs = require("fs");
@@ -22,7 +23,9 @@ function anchorHref(id) {
   return tag[0].match(/\bhref="([^"]*)"/)[1];
 }
 
-function anything(props = {}) {
+// onSet, when given, sees every property write on this object and on any
+// object reached through it (link.hash, link.dataset.x, link.attributes...).
+function anything(props = {}, onSet = null, path = "") {
   const target = function () {};
   Object.assign(target, props);
   return new Proxy(target, {
@@ -31,20 +34,24 @@ function anything(props = {}) {
       if (k === Symbol.iterator) return function* () {};
       if (k === Symbol.toPrimitive) return () => "";
       if (k === "length") return 0;
-      return anything();
+      return anything({}, onSet, `${path}${String(k)}.`);
     },
-    set(t, k, v) { t[k] = v; return true; },
-    apply() { return anything(); },
+    set(t, k, v) {
+      if (onSet) onSet(`${path}${String(k)}`, v);
+      t[k] = v;
+      return true;
+    },
+    apply() { return anything({}, onSet, path); },
   });
 }
 
 const listeners = {};
 const navigations = [];
-function element(id, props) {
+function element(id, props, onSet = null) {
   return anything({
     ...props,
     addEventListener(type, fn) { (listeners[`${id}:${type}`] ||= []).push(fn); },
-  });
+  }, onSet);
 }
 
 const baseHref = anchorHref("chk-workbench");
@@ -52,21 +59,21 @@ const src = element("chk-src", {
   defaultValue: textareaDefault("chk-src"),
   value: spec.initial === undefined ? textareaDefault("chk-src") : spec.initial,
 });
-// The property and the attribute share one store, as on a real anchor, so a
-// draft written through either route shows up in hrefWrites.
+// GA4 reads the link's href, id and classes, and on a real anchor setting
+// hash, search or pathname rewrites href, so any write to the link counts.
 const attrs = { href: baseHref };
-const hrefWrites = [];
-function writeAttr(name, value) {
-  if (name === "href") hrefWrites.push(String(value));
-  attrs[name] = String(value);
-}
+const linkWrites = [];
+const recordWrite = (name, value) => linkWrites.push(`${name}=${value}`);
 const link = element("chk-workbench", {
   getAttribute(name) { return name in attrs ? attrs[name] : null; },
-  setAttribute: writeAttr,
-});
+  setAttribute(name, value) { recordWrite(`@${name}`, value); attrs[name] = String(value); },
+  setAttributeNS(_ns, name, value) { recordWrite(`@${name}`, value); attrs[name] = String(value); },
+  toggleAttribute(name) { recordWrite(`@${name}`, "toggled"); },
+  removeAttribute(name) { recordWrite(`@${name}`, "removed"); delete attrs[name]; },
+}, recordWrite);
 Object.defineProperty(link, "href", {
   get() { return attrs.href; },
-  set(value) { writeAttr("href", value); },
+  set(value) { attrs.href = String(value); },
   enumerable: true,
   configurable: true,
 });
@@ -143,5 +150,5 @@ out.modified = {
   alt: click("click", { altKey: true }),
   middleAuxclick: click("auxclick", { button: 1 }),
 };
-out.hrefWrites = hrefWrites;
+out.linkWrites = linkWrites;
 process.stdout.write(JSON.stringify(out));

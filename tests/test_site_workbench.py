@@ -82,11 +82,11 @@ class TestWorkbenchLink(unittest.TestCase):
     def test_copy_is_trimmed_before_encoding(self):
         self.assertEqual(run_app(inputs=["  My draft.\n"])["navigates"], [carried("My draft.")])
 
-    def test_app_never_writes_the_anchor_href(self):
-        # GA4 reads the href attribute, so a write through setAttribute leaks
-        # the draft as surely as one through the href property.
+    def test_app_never_writes_to_the_anchor(self):
+        # GA4 reads the link's attributes, so a draft written by any route
+        # (href, hash, setAttribute, setAttributeNS) would reach it.
         result = run_app(initial="My draft.", inputs=["Another draft.", ""])
-        self.assertEqual(result["hrefWrites"], [])
+        self.assertEqual(result["linkWrites"], [])
 
 
 if __name__ == "__main__":
