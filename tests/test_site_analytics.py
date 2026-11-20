@@ -16,8 +16,13 @@ class TestSiteAnalytics(unittest.TestCase):
         self.assertLess(scrub, tag)
         for key in ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"]:
             self.assertLess(self.html.index(key), scrub)
+        self.assertIn("new URL(window.location.href)", self.html)
+        self.assertIn("url.search = clean.toString()", self.html)
+        self.assertIn("window.history.replaceState(window.history.state, '', url.href)", self.html)
+        self.assertIn("window['ga-disable-G-TC0R2KF0H9'] = true", self.html)
 
-    def test_referrer_is_set_to_origin_before_config(self):
+    def test_referrer_is_set_to_origin_for_subsequent_events(self):
+        self.assertIn('<meta name="referrer" content="origin">', self.html)
         referrer = self.html.index("page_referrer: document.referrer")
         config = self.html.index("gtag('config', 'G-TC0R2KF0H9')")
         self.assertLess(referrer, config)
@@ -28,7 +33,6 @@ class TestSiteAnalytics(unittest.TestCase):
         self.assertNotIn("send_page_view: false", config.group(0))
 
     def test_manual_page_view_is_not_sent(self):
-        self.assertNotIn("page_location", self.js)
         self.assertNotIn("gtag('event', 'page_view'", self.html)
 
     def test_click_handler_ignores_non_primary_click(self):

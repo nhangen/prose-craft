@@ -38,18 +38,22 @@
 <meta name="twitter:description" content="Prose Craft turns AI-written text into human-friendly prose. A writing skill and a filter that sends every violation back to your agent until the text is clean.">
 <meta name="twitter:image" content="https://prosecraft.dev/og-image.png">
 <meta name="twitter:image:alt" content="Prose Craft: Convert AI text into human-friendly prose. Comparison of typical AI writing vs crafted prose with zero filter violations.">
+<meta name="referrer" content="origin">
 <script>
   (function () {
-    var keep = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
-    var params = new URLSearchParams(window.location.search);
-    var clean = new URLSearchParams();
-    keep.forEach(function (key) {
-      if (params.has(key)) clean.set(key, params.get(key));
-    });
-    var query = clean.toString();
-    var next = window.location.pathname + (query ? '?' + query : '') + window.location.hash;
-    if (window.location.pathname + window.location.search + window.location.hash !== next) {
-      window.history.replaceState(window.history.state, '', next);
+    try {
+      var keep = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+      var url = new URL(window.location.href);
+      var clean = new URLSearchParams();
+      keep.forEach(function (key) {
+        if (url.searchParams.has(key)) clean.set(key, url.searchParams.get(key));
+      });
+      url.search = clean.toString();
+      if (url.href !== window.location.href) {
+        window.history.replaceState(window.history.state, '', url.href);
+      }
+    } catch (e) {
+      window['ga-disable-G-TC0R2KF0H9'] = true;
     }
   })();
 </script>
