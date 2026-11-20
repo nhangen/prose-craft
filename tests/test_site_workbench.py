@@ -39,6 +39,9 @@ class TestWorkbenchLink(unittest.TestCase):
     def test_example_copy_keeps_base_url_at_setup(self):
         self.assertEqual(run_app()["afterSetup"], WORKBENCH_URL)
 
+    def test_restored_draft_is_carried_at_setup(self):
+        self.assertEqual(run_app(initial="My draft.")["afterSetup"], carried("My draft."))
+
     def test_input_carries_copy_in_hash_fragment(self):
         text = "Ship it & see — 100% #done\nline two, naïve"
         self.assertEqual(run_app(inputs=[text])["afterInput"], [carried(text)])

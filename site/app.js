@@ -41,7 +41,7 @@
   document.addEventListener("click", trackClick, true);
   document.addEventListener("auxclick", trackClick, true);
 
-  const CHK_EXAMPLE = $("chk-src").value;
+  const CHK_EXAMPLE = $("chk-src").defaultValue;
   const WORKBENCH_URL = "https://claude.ai/artifact/U14dzUR4TaszeSjP27NnUV";
 
   function drawWorkbenchLink() {
