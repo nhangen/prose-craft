@@ -132,5 +132,13 @@ for (const value of allValues) {
   out.navigates.push(result.navigated);
   out.prevented.push(result.prevented);
 }
+src.value = "My draft.";
+out.modified = {
+  meta: click("click", { metaKey: true }),
+  ctrl: click("click", { ctrlKey: true }),
+  shift: click("click", { shiftKey: true }),
+  alt: click("click", { altKey: true }),
+  middleAuxclick: click("auxclick", { button: 1 }),
+};
 out.hrefWrites = hrefWrites;
 process.stdout.write(JSON.stringify(out));

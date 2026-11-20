@@ -72,6 +72,13 @@ class TestWorkbenchLink(unittest.TestCase):
         result = run_app(initial="My draft.", inputs=["Another draft."])
         self.assertEqual(result["prevented"], [True, True])
 
+    def test_modified_and_middle_clicks_are_left_to_the_browser(self):
+        # These open a new tab on the bare href. Issue #6 accepted that the
+        # draft does not travel with them.
+        result = run_app(initial="My draft.")
+        for gesture, outcome in result["modified"].items():
+            self.assertEqual(outcome, {"navigated": None, "prevented": False}, gesture)
+
     def test_copy_is_trimmed_before_encoding(self):
         self.assertEqual(run_app(inputs=["  My draft.\n"])["navigates"], [carried("My draft.")])
 
