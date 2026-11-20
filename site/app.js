@@ -44,12 +44,24 @@
   const CHK_EXAMPLE = $("chk-src").defaultValue;
   const WORKBENCH_URL = $("chk-workbench").getAttribute("href");
 
-  function drawWorkbenchLink() {
+  // The anchor's href must stay at the bare workbench URL. The draft goes to
+  // the workbench in a hash fragment at click time only, so an enhanced-
+  // measurement click event that records the full link_url cannot carry it.
+  function workbenchDestination() {
     const text = $("chk-src").value.trim();
-    $("chk-workbench").href = text && text !== CHK_EXAMPLE
+    return text && text !== CHK_EXAMPLE
       ? `${WORKBENCH_URL}#text=${encodeURIComponent(text)}`
       : WORKBENCH_URL;
   }
+
+  function openWorkbench(event) {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    window.location.assign(workbenchDestination());
+  }
+
+  $("chk-workbench").addEventListener("click", openWorkbench);
+  $("chk-workbench").addEventListener("auxclick", openWorkbench);
 
   const SAMPLES = [
     { label: "PR description",
@@ -307,7 +319,7 @@
   $("q-pass").addEventListener("click", () => guess("pass"));
   $("q-next").addEventListener("click", () => { Object.assign(state, { qi: state.qi + 1, ans: null }); drawQuiz(); });
   $("q-restart").addEventListener("click", () => { Object.assign(state, { qi: 0, ans: null, score: 0 }); drawQuiz(); });
-  $("chk-src").addEventListener("input", () => { drawCheck(); drawWorkbenchLink(); });
+  $("chk-src").addEventListener("input", drawCheck);
   $("mode").addEventListener("click", () => {
     state.dark = !state.dark;
     try { localStorage.setItem("pc-mode", state.dark ? "dark" : "light"); } catch (_) { /* storage can be blocked */ }
@@ -323,5 +335,4 @@
   drawRhythm();
   drawQuiz();
   drawCheck();
-  drawWorkbenchLink();
 })();

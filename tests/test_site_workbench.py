@@ -40,23 +40,40 @@ class TestWorkbenchLink(unittest.TestCase):
         self.assertEqual(run_app()["afterSetup"], WORKBENCH_URL)
 
     def test_restored_draft_is_carried_at_setup(self):
-        self.assertEqual(run_app(initial="My draft.")["afterSetup"], carried("My draft."))
+        # The anchor href stays at the bare URL, but a click at setup time
+        # navigates with the restored draft in the hash fragment.
+        result = run_app(initial="My draft.")
+        self.assertEqual(result["afterSetup"], WORKBENCH_URL)
+        self.assertEqual(result["navigates"], [carried("My draft.")])
 
-    def test_input_carries_copy_in_hash_fragment(self):
+    def test_anchor_href_never_carries_the_draft(self):
         text = "Ship it & see — 100% #done\nline two, naïve"
-        self.assertEqual(run_app(inputs=[text])["afterInput"], [carried(text)])
+        result = run_app(initial="My draft.", inputs=[text])
+        for href in [result["afterSetup"], *result["afterInput"]]:
+            self.assertEqual(href, WORKBENCH_URL,
+                             "the anchor href must stay at the bare workbench URL")
+
+    def test_click_navigates_with_copy_in_hash_fragment(self):
+        text = "Ship it & see — 100% #done\nline two, naïve"
+        result = run_app(initial="My draft.", inputs=[text])
+        self.assertEqual(result["navigates"], [carried("My draft."), carried(text)])
+
+    def test_click_on_example_or_blank_copy_uses_base_url(self):
+        example = run_app()["example"]
+        result = run_app(inputs=["My draft.", "", "   \n", example])
+        self.assertEqual(
+            result["navigates"],
+            [carried("My draft."), WORKBENCH_URL, WORKBENCH_URL, WORKBENCH_URL],
+        )
 
     def test_copy_is_trimmed_before_encoding(self):
-        self.assertEqual(run_app(inputs=["  My draft.\n"])["afterInput"], [carried("My draft.")])
+        self.assertEqual(run_app(inputs=["  My draft.\n"])["navigates"], [carried("My draft.")])
 
-    def test_empty_whitespace_and_example_revert_to_base_url(self):
-        example = run_app()["example"]
-        result = run_app(inputs=["My draft.", "", "My draft.", "   \n", "My draft.", example])
-        self.assertEqual(
-            result["afterInput"],
-            [carried("My draft."), WORKBENCH_URL, carried("My draft."), WORKBENCH_URL,
-             carried("My draft."), WORKBENCH_URL],
-        )
+    def test_draft_text_never_reaches_an_anchor_attribute(self):
+        html = (SITE_DIR / "index.html").read_text(encoding="utf-8")
+        js = (SITE_DIR / "app.js").read_text(encoding="utf-8")
+        self.assertNotIn(".href =", js,
+                         "app.js must never write the draft into the anchor's href")
 
 
 if __name__ == "__main__":

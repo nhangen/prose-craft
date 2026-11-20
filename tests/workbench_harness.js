@@ -1,5 +1,6 @@
-// Loads site/app.js against a stub DOM and prints the workbench href after
-// setup and after each input event. Usage:
+// Loads site/app.js against a stub DOM and reports the workbench href at
+// setup plus the URL the click handler would navigate to after each input
+// event. Usage:
 //   node workbench_harness.js <app.js> '<json: {initial, inputs}>'
 "use strict";
 const fs = require("fs");
@@ -38,6 +39,7 @@ function anything(props = {}) {
 }
 
 const listeners = {};
+const navigations = [];
 function element(id, props) {
   return anything({
     ...props,
@@ -62,7 +64,13 @@ const document = anything({
 });
 const context = {
   document,
-  window: anything({ location: { href: "https://prosecraft.dev/", origin: "https://prosecraft.dev" } }),
+  window: {
+    location: {
+      href: "https://prosecraft.dev/",
+      origin: "https://prosecraft.dev",
+      assign(url) { navigations.push(url); },
+    },
+  },
   localStorage: { getItem() { return null; }, setItem() {} },
   Element: function Element() {},
   HTMLAnchorElement: function HTMLAnchorElement() {},
@@ -82,5 +90,21 @@ for (const value of spec.inputs || []) {
   src.value = value;
   (listeners["chk-src:input"] || []).forEach((fn) => fn({ target: src }));
   out.afterInput.push(link.href);
+}
+
+// Simulate a left mouse click on the workbench link for the initial value
+// and each input value, recording where the click handler sends the browser.
+out.navigates = [];
+const allValues = [spec.initial, ...spec.inputs].filter((v) => v !== undefined);
+for (const value of allValues) {
+  navigations.length = 0;
+  src.value = value;
+  (listeners["chk-workbench:click"] || []).forEach((fn) => fn({
+    target: link,
+    button: 0,
+    metaKey: false, ctrlKey: false, shiftKey: false, altKey: false,
+    preventDefault() {},
+  }));
+  out.navigates.push(navigations[0] || null);
 }
 process.stdout.write(JSON.stringify(out));
