@@ -44,23 +44,35 @@
   const CHK_EXAMPLE = $("chk-src").defaultValue;
   const WORKBENCH_URL = $("chk-workbench").getAttribute("href");
 
-  // The anchor's href must stay at the bare workbench URL. The draft goes to
-  // the workbench in a hash fragment at click time only, so an enhanced-
-  // measurement click event that records the full link_url cannot carry it.
-  function workbenchDestination() {
+  function copyDraftToClipboard() {
     const text = $("chk-src").value.trim();
-    return text && text !== CHK_EXAMPLE
-      ? `${WORKBENCH_URL}#text=${encodeURIComponent(text)}`
-      : WORKBENCH_URL;
+    if (text && text !== CHK_EXAMPLE && typeof navigator !== "undefined" && navigator?.clipboard?.writeText) {
+      try {
+        navigator.clipboard.writeText(text);
+      } catch (_) { /* clipboard access can be blocked */ }
+    }
   }
 
   function openWorkbench(event) {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
-    window.location.assign(workbenchDestination());
+    copyDraftToClipboard();
+    window.location.assign(WORKBENCH_URL);
   }
 
   $("chk-workbench").addEventListener("click", openWorkbench);
+
+  $("chk-paste")?.addEventListener("click", async () => {
+    if (typeof navigator !== "undefined" && navigator?.clipboard?.readText) {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          $("chk-src").value = text;
+          drawCheck();
+        }
+      } catch (_) { /* clipboard access can be blocked */ }
+    }
+  });
 
   const SAMPLES = [
     { label: "PR description",

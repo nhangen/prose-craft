@@ -77,7 +77,23 @@ Object.defineProperty(link, "href", {
   enumerable: true,
   configurable: true,
 });
-const elements = { "chk-src": src, "chk-workbench": link };
+const pasteBtn = element("chk-paste", {});
+const elements = { "chk-src": src, "chk-workbench": link, "chk-paste": pasteBtn };
+
+const clipboardWrites = [];
+let clipboardContents = spec.clipboardInitial || "";
+const navigatorObj = {
+  clipboard: {
+    writeText(text) {
+      clipboardWrites.push(String(text));
+      clipboardContents = String(text);
+      return Promise.resolve();
+    },
+    readText() {
+      return Promise.resolve(clipboardContents);
+    },
+  },
+};
 
 const document = anything({
   getElementById(id) { return elements[id] || (elements[id] = element(id, {})); },
@@ -85,7 +101,9 @@ const document = anything({
 });
 const context = {
   document,
+  navigator: navigatorObj,
   window: {
+    navigator: navigatorObj,
     location: {
       href: "https://prosecraft.dev/",
       origin: "https://prosecraft.dev",
@@ -110,6 +128,8 @@ const out = { example: src.defaultValue, base: baseHref, afterSetup: link.href, 
 // A click before any input, with the textarea still holding its initial or
 // example text.
 out.setupClick = click("click").navigated;
+out.setupClipboardWrites = clipboardWrites.slice();
+clipboardWrites.length = 0;
 for (const value of spec.inputs || []) {
   src.value = value;
   (listeners["chk-src:input"] || []).forEach((fn) => fn({ target: src }));
@@ -151,5 +171,15 @@ out.modified = {
   middleClick: click("click", { button: 1 }),
   middleAuxclick: click("auxclick", { button: 1 }),
 };
-out.linkWrites = linkWrites;
-process.stdout.write(JSON.stringify(out));
+(async () => {
+  out.linkWrites = linkWrites;
+  out.clipboardWrites = clipboardWrites;
+  if (spec.testPaste) {
+    clipboardContents = spec.testPaste;
+    for (const fn of listeners["chk-paste:click"] || []) {
+      await fn({ type: "click" });
+    }
+    out.pastedValue = src.value;
+  }
+  process.stdout.write(JSON.stringify(out));
+})();

@@ -336,11 +336,14 @@
 <div class="wrap" style="padding-top:88px;padding-bottom:88px">
 <div class="eyebrow">Your copy</div>
 <h2 class="serif" style="margin:12px 0 0;font-size:clamp(34px,4.6vw,52px);line-height:1.05;letter-spacing:-.02em;font-weight:400;max-width:760px">Try Prose Craft Live</h2>
-<p style="margin:16px 0 0;font-size:17px;line-height:1.6;color:var(--body);max-width:640px">This is the same check the plugin runs, ported to run in your browser. It reads two rules: no em dash, and no sentence that opens with an adverbial. This checker keeps your text in your browser. The workbench goes one step further and has Claude rewrite each flagged sentence.</p>
+<p style="margin:16px 0 0;font-size:17px;line-height:1.6;color:var(--body);max-width:640px">This is the same check the plugin runs, ported to run in your browser. It reads two rules: no em dash, and no sentence that opens with an adverbial. This checker keeps your text in your browser. Prose Craft Live goes one step further and has Claude rewrite each flagged sentence.</p>
 <div style="display:flex;flex-wrap:wrap;gap:20px;margin-top:40px;align-items:stretch">
 <div style="flex:1 1 440px;min-width:0;display:flex;flex-direction:column;gap:10px">
 <label for="chk-src" class="mono" style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Your copy</label>
 <textarea id="chk-src" spellcheck="true" style="box-sizing:border-box;width:100%;min-height:260px;resize:vertical;background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;font-family:'Newsreader',Georgia,serif;font-size:19px;line-height:1.65">To keep your machines in step, dotsync mirrors your config files through a git repo. Setup takes one command — no daemon, no account. Because it is plain git underneath, every change is reviewable and reversible.</textarea>
+<div style="display:flex;gap:10px;align-items:center">
+<button type="button" class="btn btn-ghost" id="chk-paste" style="min-height:36px;padding:0 14px;font-size:13px">Paste copy</button>
+</div>
 </div>
 <div style="flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:10px">
 <div class="mono" style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Filter report</div>
@@ -353,8 +356,8 @@
 </div>
 </div>
 <div style="display:flex;flex-wrap:wrap;gap:12px 20px;margin-top:28px;align-items:center">
-<a class="btn" id="chk-workbench" href="https://claude.ai/artifact/U14dzUR4TaszeSjP27NnUV">Craft it in the workbench &rarr;</a>
-<span style="font-size:14px;line-height:1.5;color:var(--body);max-width:520px">The workbench sends your text to Claude on your own account. It re-checks the result and asks Claude to fix anything still flagged, for up to three rounds.</span>
+<a class="btn" id="chk-workbench" href="https://claude.ai/artifact/U14dzUR4TaszeSjP27NnUV">Copy to Prose Craft Live &rarr;</a>
+<span style="font-size:14px;line-height:1.5;color:var(--body);max-width:520px">Prose Craft Live sends your text to Claude on your own account. It re-checks the result and asks Claude to fix anything still flagged, for up to three rounds.</span>
 </div>
 </div>
 </section>
