@@ -62,18 +62,6 @@
 
   $("chk-workbench").addEventListener("click", openWorkbench);
 
-  $("chk-paste")?.addEventListener("click", async () => {
-    if (typeof navigator !== "undefined" && navigator?.clipboard?.readText) {
-      try {
-        const text = await navigator.clipboard.readText();
-        if (text) {
-          $("chk-src").value = text;
-          drawCheck();
-        }
-      } catch (_) { /* clipboard access can be blocked */ }
-    }
-  });
-
   const SAMPLES = [
     { label: "PR description",
       intake: "Write a PR description for a change that retries failed webhook deliveries with exponential backoff.",

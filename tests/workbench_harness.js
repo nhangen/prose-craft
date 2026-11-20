@@ -77,8 +77,7 @@ Object.defineProperty(link, "href", {
   enumerable: true,
   configurable: true,
 });
-const pasteBtn = element("chk-paste", {});
-const elements = { "chk-src": src, "chk-workbench": link, "chk-paste": pasteBtn };
+const elements = { "chk-src": src, "chk-workbench": link };
 
 const clipboardWrites = [];
 let clipboardContents = spec.clipboardInitial || "";
@@ -171,15 +170,6 @@ out.modified = {
   middleClick: click("click", { button: 1 }),
   middleAuxclick: click("auxclick", { button: 1 }),
 };
-(async () => {
-  out.linkWrites = linkWrites;
-  out.clipboardWrites = clipboardWrites;
-  if (spec.testPaste) {
-    clipboardContents = spec.testPaste;
-    for (const fn of listeners["chk-paste:click"] || []) {
-      await fn({ type: "click" });
-    }
-    out.pastedValue = src.value;
-  }
-  process.stdout.write(JSON.stringify(out));
-})();
+out.linkWrites = linkWrites;
+out.clipboardWrites = clipboardWrites;
+process.stdout.write(JSON.stringify(out));

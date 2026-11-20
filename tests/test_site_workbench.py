@@ -10,12 +10,10 @@ SITE_DIR = TESTS_DIR.parent / "site"
 WORKBENCH_URL = "https://claude.ai/artifact/U14dzUR4TaszeSjP27NnUV"
 
 
-def run_app(initial=None, inputs=(), test_paste=None):
+def run_app(initial=None, inputs=()):
     spec = {"inputs": list(inputs)}
     if initial is not None:
         spec["initial"] = initial
-    if test_paste is not None:
-        spec["testPaste"] = test_paste
     out = subprocess.run(
         ["node", str(TESTS_DIR / "workbench_harness.js"), str(SITE_DIR / "app.js"), json.dumps(spec)],
         capture_output=True, text=True, check=True,
@@ -43,10 +41,6 @@ class TestWorkbenchButton(unittest.TestCase):
         # Verify user-visible text (excluding id/class attributes) does not say "workbench"
         text_only = re.sub(r'<[^>]+>', ' ', check_section.group(1))
         self.assertNotIn("workbench", text_only.lower())
-
-    def test_paste_button_exists(self):
-        html = (SITE_DIR / "index.html").read_text(encoding="utf-8")
-        self.assertRegex(html, r'<button\b[^>]*\bid="chk-paste"[^>]*>\s*Paste copy\s*</button>')
 
 
 @unittest.skipUnless(shutil.which("node"), "node is required to run site/app.js")
@@ -100,10 +94,6 @@ class TestWorkbenchLink(unittest.TestCase):
     def test_app_never_writes_to_the_anchor(self):
         result = run_app(initial="My draft.", inputs=["Another draft.", ""])
         self.assertEqual(result["linkWrites"], [])
-
-    def test_paste_button_reads_clipboard_and_updates_textarea(self):
-        result = run_app(test_paste="Pasted content from clipboard")
-        self.assertEqual(result.get("pastedValue"), "Pasted content from clipboard")
 
 
 if __name__ == "__main__":
