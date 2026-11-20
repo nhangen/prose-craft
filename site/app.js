@@ -42,25 +42,51 @@
   document.addEventListener("auxclick", trackClick, true);
 
   const CHK_EXAMPLE = $("chk-src").defaultValue;
-  const WORKBENCH_URL = $("chk-workbench").getAttribute("href");
+  const LIVE_URL = $("chk-live").getAttribute("href");
 
-  // The anchor's href must stay at the bare workbench URL. The draft goes to
-  // the workbench in a hash fragment at click time only, so an enhanced-
-  // measurement click event that records the full link_url cannot carry it.
-  function workbenchDestination() {
+  // Prose Craft Live drops query strings and hash fragments on arrival, so the
+  // draft travels on the clipboard instead and the page offers a Paste button.
+  // The anchor's href stays at the bare URL, so an enhanced-measurement click
+  // event that records the full link_url never carries the draft.
+  function draftToCarry() {
     const text = $("chk-src").value.trim();
-    return text && text !== CHK_EXAMPLE
-      ? `${WORKBENCH_URL}#text=${encodeURIComponent(text)}`
-      : WORKBENCH_URL;
+    return text && text !== CHK_EXAMPLE ? text : "";
   }
 
-  function openWorkbench(event) {
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  // Resolves once the copy has settled either way. Navigating away before
+  // that can abort a pending clipboard write.
+  function copyDraft(text) {
+    const clip = window.navigator && window.navigator.clipboard;
+    const write = clip && typeof clip.writeText === "function"
+      ? Promise.resolve().then(() => clip.writeText(text))
+      : Promise.reject(new Error("no clipboard API"));
+    return write.catch(() => {
+      // Older browsers and some embedded views block the async API. Copying
+      // the selected textarea still works there.
+      const box = $("chk-src");
+      try {
+        box.focus();
+        box.select();
+        document.execCommand("copy");
+      } catch (e) { /* nothing left to try */ }
+    });
+  }
+
+  function openLive(event) {
+    const text = draftToCarry();
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      // The browser opens a new tab on the bare href and this page stays
+      // open, so the copy can finish on its own.
+      if (text) copyDraft(text);
+      return;
+    }
     event.preventDefault();
-    window.location.assign(workbenchDestination());
+    const go = () => window.location.assign(LIVE_URL);
+    if (text) copyDraft(text).then(go); else go();
   }
 
-  $("chk-workbench").addEventListener("click", openWorkbench);
+  $("chk-live").addEventListener("click", openLive);
+  $("chk-live").addEventListener("auxclick", openLive);
 
   const SAMPLES = [
     { label: "PR description",
