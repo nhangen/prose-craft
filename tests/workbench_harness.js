@@ -106,20 +106,31 @@ for (const value of spec.inputs || []) {
   out.afterInput.push(link.href);
 }
 
-// Simulate a left mouse click on the workbench link for the initial value
-// and each input value, recording where the click handler sends the browser.
-out.navigates = [];
-const allValues = [spec.initial, ...spec.inputs].filter((v) => v !== undefined);
-for (const value of allValues) {
+function click(type, overrides = {}) {
   navigations.length = 0;
-  src.value = value;
-  (listeners["chk-workbench:click"] || []).forEach((fn) => fn({
+  const event = {
+    type,
     target: link,
     button: 0,
     metaKey: false, ctrlKey: false, shiftKey: false, altKey: false,
-    preventDefault() {},
-  }));
-  out.navigates.push(navigations[0] || null);
+    defaultPrevented: false,
+    preventDefault() { this.defaultPrevented = true; },
+    ...overrides,
+  };
+  (listeners[`chk-workbench:${type}`] || []).forEach((fn) => fn(event));
+  return { navigated: navigations[0] || null, prevented: event.defaultPrevented };
+}
+
+// Simulate a left mouse click on the workbench link for the initial value
+// and each input value, recording where the click handler sends the browser.
+out.navigates = [];
+out.prevented = [];
+const allValues = [spec.initial, ...spec.inputs].filter((v) => v !== undefined);
+for (const value of allValues) {
+  src.value = value;
+  const result = click("click");
+  out.navigates.push(result.navigated);
+  out.prevented.push(result.prevented);
 }
 out.hrefWrites = hrefWrites;
 process.stdout.write(JSON.stringify(out));

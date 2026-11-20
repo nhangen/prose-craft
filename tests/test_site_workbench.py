@@ -66,6 +66,12 @@ class TestWorkbenchLink(unittest.TestCase):
             [carried("My draft."), WORKBENCH_URL, WORKBENCH_URL, WORKBENCH_URL],
         )
 
+    def test_click_cancels_the_default_navigation(self):
+        # Without preventDefault the anchor's bare href replaces the
+        # location.assign navigation and the draft is lost.
+        result = run_app(initial="My draft.", inputs=["Another draft."])
+        self.assertEqual(result["prevented"], [True, True])
+
     def test_copy_is_trimmed_before_encoding(self):
         self.assertEqual(run_app(inputs=["  My draft.\n"])["navigates"], [carried("My draft.")])
 
