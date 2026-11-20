@@ -53,36 +53,62 @@
     return text && text !== CHK_EXAMPLE ? text : "";
   }
 
-  // Resolves once the copy has settled either way. Navigating away before
-  // that can abort a pending clipboard write.
-  function copyDraft(text) {
-    const clip = window.navigator && window.navigator.clipboard;
-    const write = clip && typeof clip.writeText === "function"
-      ? Promise.resolve().then(() => clip.writeText(text))
-      : Promise.reject(new Error("no clipboard API"));
-    return write.catch(() => {
-      // Older browsers and some embedded views block the async API. Copying
-      // the selected textarea still works there.
-      const box = $("chk-src");
-      try {
-        box.focus();
-        box.select();
-        document.execCommand("copy");
-      } catch (e) { /* nothing left to try */ }
-    });
+  const COPY_TIMEOUT_MS = 1500;
+
+  // Copies the selected textarea. Older browsers and some embedded views block
+  // the async clipboard API, and this still works there.
+  function selectionCopy() {
+    const box = $("chk-src");
+    try {
+      box.focus();
+      box.select();
+      return document.execCommand("copy") === true;
+    } catch (e) {
+      return false;
+    }
   }
 
+  // Resolves true once the draft is on the clipboard, false if every method
+  // failed or the write did not settle in time. Navigating away before the
+  // write settles can drop it, so the caller waits for this.
+  function copyDraft(text) {
+    const clip = window.navigator && window.navigator.clipboard;
+    let write = null;
+    try {
+      // Called directly in the click handler, so the click still counts as
+      // the user gesture the clipboard needs.
+      if (clip && typeof clip.writeText === "function") write = clip.writeText(text);
+    } catch (e) { write = null; }
+    if (!write) return Promise.resolve(selectionCopy());
+    const timedOut = new Promise((resolve) => setTimeout(() => resolve(null), COPY_TIMEOUT_MS));
+    return Promise.race([Promise.resolve(write).then(() => true, () => selectionCopy()), timedOut])
+      .then((ok) => (ok === null ? selectionCopy() : ok));
+  }
+
+  const liveMsg = $("chk-live-msg");
+
   function openLive(event) {
+    // Right-click and the back and forward mouse buttons also fire auxclick.
+    // Only the middle button opens the link, so only it copies.
+    if (event.type === "auxclick" && event.button !== 1) return;
     const text = draftToCarry();
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
       // The browser opens a new tab on the bare href and this page stays
-      // open, so the copy can finish on its own.
+      // open, so the copy can finish on its own. Safari fires no auxclick,
+      // so a middle click there opens the tab without copying.
       if (text) copyDraft(text);
       return;
     }
     event.preventDefault();
     const go = () => window.location.assign(LIVE_URL);
-    if (text) copyDraft(text).then(go); else go();
+    liveMsg.textContent = "";
+    if (!text) { go(); return; }
+    copyDraft(text).then((ok) => {
+      if (ok) { go(); return; }
+      // Without the draft on the clipboard, Paste in Prose Craft Live would
+      // pick up whatever was there before. Stay here and say what to do.
+      liveMsg.textContent = "Your browser blocked the copy. Select your text, press Ctrl+C (Cmd+C on a Mac), then click the button again.";
+    });
   }
 
   $("chk-live").addEventListener("click", openLive);

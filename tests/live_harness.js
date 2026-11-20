@@ -2,9 +2,10 @@
 // the Prose Craft Live link, and reports the link's href, what each click put
 // on the clipboard, where it navigates, whether it cancelled the default, and
 // every write the app made to the link. Usage:
-//   node workbench_harness.js <app.js> '<json: {initial, inputs, clipboard}>'
-// clipboard is "ok" (default), "reject" (writeText rejects) or "missing"
-// (no navigator.clipboard).
+//   node live_harness.js <app.js> '<json: {initial, inputs, clipboard, exec}>'
+// clipboard is "ok" (default; writeText resolves a few ticks later),
+// "reject" (writeText rejects), "hang" (writeText never settles) or
+// "missing" (no navigator.clipboard). exec "fail" makes execCommand fail.
 "use strict";
 const fs = require("fs");
 const vm = require("vm");
@@ -48,6 +49,7 @@ function anything(props = {}, onSet = null, path = "") {
 }
 
 const listeners = {};
+const timers = [];
 const navigations = [];
 // Every clipboard write and navigation, in the order the app made them.
 const events = [];
@@ -59,7 +61,10 @@ function element(id, props, onSet = null) {
 }
 
 const baseHref = anchorHref("chk-live");
+let selected = false;
 const src = element("chk-src", {
+  focus() {},
+  select() { selected = true; },
   defaultValue: textareaDefault("chk-src"),
   value: spec.initial === undefined ? textareaDefault("chk-src") : spec.initial,
 });
@@ -81,20 +86,32 @@ Object.defineProperty(link, "href", {
   enumerable: true,
   configurable: true,
 });
-const elements = { "chk-src": src, "chk-live": link };
+const msg = element("chk-live-msg", {}, (name, value) => {
+  if (name === "textContent" && value) events.push("msg");
+});
+const elements = { "chk-src": src, "chk-live": link, "chk-live-msg": msg };
 
 const document = anything({
   getElementById(id) { return elements[id] || (elements[id] = element(id, {})); },
   addEventListener() {},
-  execCommand(name) { events.push(`exec:${name}:${src.value}`); return true; },
+  // Reports a copy only when the app selected the textarea first.
+  execCommand(name) {
+    if (!selected || spec.exec === "fail") return false;
+    events.push(`exec:${name}:${src.value}`);
+    return true;
+  },
 });
 const mode = spec.clipboard || "ok";
 const navigator = mode === "missing" ? {} : {
   clipboard: {
     writeText(text) {
       if (mode === "reject") return Promise.reject(new Error("blocked"));
-      events.push(`copy:${text}`);
-      return Promise.resolve();
+      if (mode === "hang") return new Promise(() => {});
+      // Settles a few ticks later, so a caller that does not wait navigates
+      // before "copied:" is logged.
+      return new Promise((resolve) => {
+        setImmediate(() => setImmediate(() => { events.push(`copied:${text}`); resolve(); }));
+      });
     },
   },
 };
@@ -113,7 +130,10 @@ const context = {
   HTMLAnchorElement: function HTMLAnchorElement() {},
   URL,
   console,
-  setTimeout() {}, clearTimeout() {}, setInterval() {}, clearInterval() {},
+  // app.js uses setTimeout only for the copy timeout. Timers run when a
+  // click has otherwise settled.
+  setTimeout(fn) { timers.push(fn); return timers.length; }, clearTimeout() {},
+  setInterval() {}, clearInterval() {},
   requestAnimationFrame() {}, cancelAnimationFrame() {},
 };
 context.globalThis = context;
@@ -136,6 +156,8 @@ for (const value of spec.inputs || []) {
 async function click(type, overrides = {}) {
   navigations.length = 0;
   events.length = 0;
+  timers.length = 0;
+  selected = false;
   const event = {
     type,
     target: link,
@@ -147,7 +169,10 @@ async function click(type, overrides = {}) {
   };
   (listeners[`chk-live:${type}`] || []).forEach((fn) => fn(event));
   // Let the clipboard promise chain settle before reading the outcome.
-  for (let i = 0; i < 10; i++) await new Promise((resolve) => setImmediate(resolve));
+  const settle = async () => { for (let i = 0; i < 10; i++) await new Promise((resolve) => setImmediate(resolve)); };
+  await settle();
+  timers.splice(0).forEach((fn) => fn());
+  await settle();
   return { navigated: navigations[0] || null, prevented: event.defaultPrevented, events: [...events] };
 }
 
@@ -172,6 +197,10 @@ out.modified = {
   alt: await click("click", { altKey: true }),
   middleClick: await click("click", { button: 1 }),
   middleAuxclick: await click("auxclick", { button: 1 }),
+};
+out.ignored = {
+  rightAuxclick: await click("auxclick", { button: 2 }),
+  backAuxclick: await click("auxclick", { button: 3 }),
 };
 out.linkWrites = linkWrites;
 process.stdout.write(JSON.stringify(out));
