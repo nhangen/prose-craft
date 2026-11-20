@@ -38,15 +38,28 @@
 <meta name="twitter:description" content="Prose Craft turns AI-written text into human-friendly prose. A writing skill and a filter that sends every violation back to your agent until the text is clean.">
 <meta name="twitter:image" content="https://prosecraft.dev/og-image.png">
 <meta name="twitter:image:alt" content="Prose Craft: Convert AI text into human-friendly prose. Comparison of typical AI writing vs crafted prose with zero filter violations.">
+<script>
+  (function () {
+    var keep = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+    var params = new URLSearchParams(window.location.search);
+    var clean = new URLSearchParams();
+    keep.forEach(function (key) {
+      if (params.has(key)) clean.set(key, params.get(key));
+    });
+    var query = clean.toString();
+    var next = window.location.pathname + (query ? '?' + query : '') + window.location.hash;
+    if (window.location.pathname + window.location.search + window.location.hash !== next) {
+      window.history.replaceState(window.history.state, '', next);
+    }
+  })();
+</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-TC0R2KF0H9"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-TC0R2KF0H9', {
-    page_location: `${window.location.origin}${window.location.pathname}`,
-    page_referrer: document.referrer ? new URL(document.referrer).origin : '',
-  });
+  gtag('set', { page_referrer: document.referrer ? new URL(document.referrer).origin : '' });
+  gtag('config', 'G-TC0R2KF0H9');
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

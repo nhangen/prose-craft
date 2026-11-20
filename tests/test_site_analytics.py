@@ -10,11 +10,21 @@ class TestSiteAnalytics(unittest.TestCase):
         self.html = (SITE_DIR / "index.html").read_text(encoding="utf-8")
         self.js = (SITE_DIR / "app.js").read_text(encoding="utf-8")
 
-    def test_config_carries_sanitized_url_params_and_uses_automatic_page_view(self):
-        config = re.search(r"gtag\('config',[^;]*?\}\);", self.html, re.S)
+    def test_query_scrubber_runs_before_google_tag_load(self):
+        scrub = self.html.index("history.replaceState")
+        tag = self.html.index("googletagmanager.com/gtag/js")
+        self.assertLess(scrub, tag)
+        for key in ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"]:
+            self.assertLess(self.html.index(key), scrub)
+
+    def test_referrer_is_set_to_origin_before_config(self):
+        referrer = self.html.index("page_referrer: document.referrer")
+        config = self.html.index("gtag('config', 'G-TC0R2KF0H9')")
+        self.assertLess(referrer, config)
+
+    def test_config_uses_automatic_page_view(self):
+        config = re.search(r"gtag\('config',[^;]*?\);", self.html, re.S)
         self.assertIsNotNone(config, "gtag config call missing")
-        self.assertIn("page_location", config.group(0))
-        self.assertIn("page_referrer", config.group(0))
         self.assertNotIn("send_page_view: false", config.group(0))
 
     def test_manual_page_view_is_not_sent(self):
