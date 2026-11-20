@@ -82,6 +82,9 @@ class TestQueryScrubber(unittest.TestCase):
     def test_throwing_replace_state_disables_analytics(self):
         self.assertTrue(scrub("https://prosecraft.dev/?x=secret", replace_state="throw")["disabled"])
 
+    def test_replace_state_that_does_not_change_url_disables_analytics(self):
+        self.assertTrue(scrub("https://prosecraft.dev/?x=secret", replace_state="noop")["disabled"])
+
 
 if __name__ == "__main__":
     unittest.main()

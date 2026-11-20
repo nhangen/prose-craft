@@ -51,6 +51,7 @@
       url.search = clean.toString();
       if (url.href !== window.location.href) {
         window.history.replaceState(window.history.state, '', url.href);
+        if (window.location.href !== url.href) throw new Error('URL scrub did not apply');
       }
     } catch (e) {
       window['ga-disable-G-TC0R2KF0H9'] = true;
