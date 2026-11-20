@@ -1,8 +1,21 @@
+import json
 import re
+import shutil
+import subprocess
 import unittest
 from pathlib import Path
 
-SITE_DIR = Path(__file__).resolve().parent.parent / "site"
+TESTS_DIR = Path(__file__).resolve().parent
+SITE_DIR = TESTS_DIR.parent / "site"
+
+
+def scrub(href, replace_state="ok"):
+    out = subprocess.run(
+        ["node", str(TESTS_DIR / "scrubber_harness.js"), str(SITE_DIR / "index.html"),
+         json.dumps({"href": href, "replaceState": replace_state})],
+        capture_output=True, text=True, check=True,
+    )
+    return json.loads(out.stdout)
 
 
 class TestSiteAnalytics(unittest.TestCase):
@@ -40,6 +53,34 @@ class TestSiteAnalytics(unittest.TestCase):
 
     def test_destination_limited_to_http_schemes(self):
         self.assertIn('url.protocol === "http:" || url.protocol === "https:"', self.js)
+
+
+@unittest.skipUnless(shutil.which("node"), "node is required to run the inline scrubber")
+class TestQueryScrubber(unittest.TestCase):
+    def test_drops_private_params_and_keeps_utm_and_hash(self):
+        result = scrub("https://prosecraft.dev/?x=secret&q=private&gclid=abc&utm_source=test&utm_medium=cpc#rules")
+        self.assertEqual(result["href"], "https://prosecraft.dev/?utm_source=test&utm_medium=cpc#rules")
+        self.assertEqual(len(result["calls"]), 1)
+        self.assertTrue(result["calls"][0]["sameState"])
+        self.assertFalse(result["disabled"])
+
+    def test_double_slash_path_is_scrubbed(self):
+        result = scrub("https://prosecraft.dev//?x=secret&utm_source=test")
+        self.assertEqual(result["href"], "https://prosecraft.dev//?utm_source=test")
+        self.assertFalse(result["disabled"])
+
+    def test_query_with_only_private_params_leaves_no_question_mark(self):
+        self.assertEqual(scrub("https://prosecraft.dev/?x=secret#demo")["href"], "https://prosecraft.dev/#demo")
+
+    def test_clean_url_is_left_alone(self):
+        for href in ["https://prosecraft.dev/", "https://prosecraft.dev/#rules", "https://prosecraft.dev/?utm_source=test"]:
+            result = scrub(href)
+            self.assertEqual(result["href"], href)
+            self.assertEqual(result["calls"], [])
+            self.assertFalse(result["disabled"])
+
+    def test_throwing_replace_state_disables_analytics(self):
+        self.assertTrue(scrub("https://prosecraft.dev/?x=secret", replace_state="throw")["disabled"])
 
 
 if __name__ == "__main__":
