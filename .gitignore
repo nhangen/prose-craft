@@ -1,2 +1,14 @@
 __pycache__/
 *.pyc
+
+# GitNexus generated files
+.gitnexus/
+.claude/
+AGENTS.md
+CLAUDE.md
+
+# GitNexus generated files
+.gitnexus/
+.claude/
+AGENTS.md
+CLAUDE.md
