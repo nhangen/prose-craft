@@ -36,9 +36,16 @@ class TestSiteAnalytics(unittest.TestCase):
 
     def test_referrer_is_set_to_origin_for_subsequent_events(self):
         self.assertIn('<meta name="referrer" content="origin">', self.html)
-        referrer = self.html.index("page_referrer: document.referrer")
-        config = self.html.index("gtag('config', 'G-TC0R2KF0H9')")
-        self.assertLess(referrer, config)
+
+    def test_page_view_referrer_is_origin_only(self):
+        # The automatic page_view must not send a full referring URL as dr:
+        # page_referrer must be passed to gtag('config'), where it applies to
+        # the config's page_view (gtag('set') does not reach it).
+        config = re.search(r"gtag\('config',[^;]*?\);", self.html, re.S)
+        self.assertIsNotNone(config, "gtag config call missing")
+        self.assertIn("page_referrer", config.group(0))
+        self.assertIn("new URL(document.referrer).origin", config.group(0))
+        self.assertNotIn("gtag('set'", self.html)
 
     def test_config_uses_automatic_page_view(self):
         config = re.search(r"gtag\('config',[^;]*?\);", self.html, re.S)
