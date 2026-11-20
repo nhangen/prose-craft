@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Site: rename the workbench to Prose Craft Live. The home page button now reads "Copy to Prose Craft Live".
+- Site: the button copies your draft to the clipboard before it opens Prose Craft Live, which has a Paste from clipboard button. The old hash-fragment handoff never arrived, because the live page drops it. If the browser blocks the copy, the page stays put and says how to copy by hand.
+
 ## 0.1.2
 
 - Move `scripts/` into `skills/prose-craft/scripts/` so any skill install (Codex installer, OpenCode, a manual copy) brings the filter with it.

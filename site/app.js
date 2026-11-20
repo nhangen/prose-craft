@@ -42,25 +42,77 @@
   document.addEventListener("auxclick", trackClick, true);
 
   const CHK_EXAMPLE = $("chk-src").defaultValue;
-  const WORKBENCH_URL = $("chk-workbench").getAttribute("href");
+  const LIVE_URL = $("chk-live").getAttribute("href");
 
-  // The anchor's href must stay at the bare workbench URL. The draft goes to
-  // the workbench in a hash fragment at click time only, so an enhanced-
-  // measurement click event that records the full link_url cannot carry it.
-  function workbenchDestination() {
+  // Prose Craft Live drops query strings and hash fragments on arrival, so the
+  // draft travels on the clipboard instead and the page offers a Paste button.
+  // The anchor's href stays at the bare URL, so an enhanced-measurement click
+  // event that records the full link_url never carries the draft.
+  function draftToCarry() {
     const text = $("chk-src").value.trim();
-    return text && text !== CHK_EXAMPLE
-      ? `${WORKBENCH_URL}#text=${encodeURIComponent(text)}`
-      : WORKBENCH_URL;
+    return text && text !== CHK_EXAMPLE ? text : "";
   }
 
-  function openWorkbench(event) {
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const COPY_TIMEOUT_MS = 1500;
+
+  // Copies the selected textarea. Older browsers and some embedded views block
+  // the async clipboard API, and this still works there.
+  function selectionCopy() {
+    const box = $("chk-src");
+    try {
+      box.focus();
+      box.select();
+      return document.execCommand("copy") === true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Resolves true once the draft is on the clipboard, false if every method
+  // failed or the write did not settle in time. Navigating away before the
+  // write settles can drop it, so the caller waits for this.
+  function copyDraft(text) {
+    const clip = window.navigator && window.navigator.clipboard;
+    let write = null;
+    try {
+      // Called directly in the click handler, so the click still counts as
+      // the user gesture the clipboard needs.
+      if (clip && typeof clip.writeText === "function") write = clip.writeText(text);
+    } catch (e) { write = null; }
+    if (!write) return Promise.resolve(selectionCopy());
+    const timedOut = new Promise((resolve) => setTimeout(() => resolve(null), COPY_TIMEOUT_MS));
+    return Promise.race([Promise.resolve(write).then(() => true, () => selectionCopy()), timedOut])
+      .then((ok) => (ok === null ? selectionCopy() : ok));
+  }
+
+  const liveMsg = $("chk-live-msg");
+
+  function openLive(event) {
+    // Right-click and the back and forward mouse buttons also fire auxclick.
+    // Only the middle button opens the link, so only it copies.
+    if (event.type === "auxclick" && event.button !== 1) return;
+    const text = draftToCarry();
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      // The browser opens a new tab on the bare href and this page stays
+      // open, so the copy can finish on its own. Safari fires no auxclick,
+      // so a middle click there opens the tab without copying.
+      if (text) copyDraft(text);
+      return;
+    }
     event.preventDefault();
-    window.location.assign(workbenchDestination());
+    const go = () => window.location.assign(LIVE_URL);
+    liveMsg.textContent = "";
+    if (!text) { go(); return; }
+    copyDraft(text).then((ok) => {
+      if (ok) { go(); return; }
+      // Without the draft on the clipboard, Paste in Prose Craft Live would
+      // pick up whatever was there before. Stay here and say what to do.
+      liveMsg.textContent = "Your browser blocked the copy. Select your text, press Ctrl+C (Cmd+C on a Mac), then click the button again.";
+    });
   }
 
-  $("chk-workbench").addEventListener("click", openWorkbench);
+  $("chk-live").addEventListener("click", openLive);
+  $("chk-live").addEventListener("auxclick", openLive);
 
   const SAMPLES = [
     { label: "PR description",
