@@ -42,25 +42,18 @@
   document.addEventListener("auxclick", trackClick, true);
 
   const CHK_EXAMPLE = $("chk-src").defaultValue;
-  const WORKBENCH_URL = $("chk-workbench").getAttribute("href");
 
-  function copyDraftToClipboard() {
+  function copyDraftToClipboard(event) {
+    if (event && (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) return;
     const text = $("chk-src").value.trim();
     if (text && text !== CHK_EXAMPLE && typeof navigator !== "undefined" && navigator?.clipboard?.writeText) {
       try {
-        navigator.clipboard.writeText(text);
+        navigator.clipboard.writeText(text).catch(() => {});
       } catch (_) { /* clipboard access can be blocked */ }
     }
   }
 
-  function openWorkbench(event) {
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    copyDraftToClipboard();
-    window.location.assign(WORKBENCH_URL);
-  }
-
-  $("chk-workbench").addEventListener("click", openWorkbench);
+  $("chk-workbench").addEventListener("click", copyDraftToClipboard);
 
   const SAMPLES = [
     { label: "PR description",

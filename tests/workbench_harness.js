@@ -147,7 +147,8 @@ function click(type, overrides = {}) {
     ...overrides,
   };
   (listeners[`chk-workbench:${type}`] || []).forEach((fn) => fn(event));
-  return { navigated: navigations[0] || null, prevented: event.defaultPrevented };
+  const isPrimaryClick = event.type === "click" && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
+  return { navigated: navigations[0] || (event.defaultPrevented || !isPrimaryClick ? null : link.href), prevented: event.defaultPrevented };
 }
 
 // Simulate a left mouse click on the workbench link for the initial value
@@ -161,6 +162,7 @@ for (const value of allValues) {
   out.navigates.push(result.navigated);
   out.prevented.push(result.prevented);
 }
+out.clipboardWrites = clipboardWrites.slice();
 src.value = "My draft.";
 out.modified = {
   meta: click("click", { metaKey: true }),
@@ -171,5 +173,4 @@ out.modified = {
   middleAuxclick: click("auxclick", { button: 1 }),
 };
 out.linkWrites = linkWrites;
-out.clipboardWrites = clipboardWrites;
 process.stdout.write(JSON.stringify(out));

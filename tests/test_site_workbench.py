@@ -34,6 +34,13 @@ class TestWorkbenchButton(unittest.TestCase):
         self.assertIsNotNone(tag)
         self.assertIn("Copy to Prose Craft Live", tag.group(1))
 
+    def test_button_opens_in_new_tab(self):
+        html = (SITE_DIR / "index.html").read_text(encoding="utf-8")
+        tag = re.search(r'<a\b[^>]*\bid="chk-workbench"[^>]*>', html)
+        self.assertIsNotNone(tag)
+        self.assertIn('target="_blank"', tag.group(0))
+        self.assertIn('rel="noopener"', tag.group(0))
+
     def test_section_does_not_mention_workbench(self):
         html = (SITE_DIR / "index.html").read_text(encoding="utf-8")
         check_section = re.search(r'<section id="check"[^>]*>([\s\S]*?)</section>', html)
@@ -79,9 +86,10 @@ class TestWorkbenchLink(unittest.TestCase):
         )
         self.assertEqual(result["clipboardWrites"], ["My draft."])
 
-    def test_click_cancels_the_default_navigation(self):
+    def test_click_leaves_navigation_to_the_browser(self):
         result = run_app(initial="My draft.", inputs=["Another draft."])
-        self.assertEqual(result["prevented"], [True, True])
+        self.assertEqual(result["prevented"], [False, False])
+        self.assertEqual(result["navigates"], [WORKBENCH_URL, WORKBENCH_URL])
 
     def test_modified_and_middle_clicks_are_left_to_the_browser(self):
         result = run_app(initial="My draft.")
