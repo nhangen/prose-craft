@@ -61,7 +61,6 @@
   }
 
   $("chk-workbench").addEventListener("click", openWorkbench);
-  $("chk-workbench").addEventListener("auxclick", openWorkbench);
 
   const SAMPLES = [
     { label: "PR description",
