@@ -148,6 +148,7 @@ out.modified = {
   ctrl: click("click", { ctrlKey: true }),
   shift: click("click", { shiftKey: true }),
   alt: click("click", { altKey: true }),
+  middleClick: click("click", { button: 1 }),
   middleAuxclick: click("auxclick", { button: 1 }),
 };
 out.linkWrites = linkWrites;
