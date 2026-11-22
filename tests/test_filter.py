@@ -1,3 +1,5 @@
+import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -63,6 +65,20 @@ class Check(unittest.TestCase):
         r = run(["check", "-"], "- Furthermore, this passes.\n- In parallel, this fails.\n")
         self.assertEqual(r.returncode, 1)
         self.assertIn("line 2", r.stdout)
+
+    def test_heading_and_wrapped_paragraph_report_physical_lines(self):
+        draft = "# Results\nIn June, we shipped. We kept\nthe schedule.\nAfter lunch, we rested."
+        r = run(["check", "-"], draft)
+        self.assertEqual(r.returncode, 1)
+        self.assertEqual([line.split(":")[0] for line in r.stdout.splitlines()
+                          if line.startswith("- line")], ["- line 2", "- line 4"])
+
+    @unittest.skipUnless(shutil.which("node"), "node is required for the browser checker")
+    def test_browser_reports_physical_lines_after_heading_and_wrap(self):
+        draft = "# Results\nIn June, we shipped. We kept\nthe schedule.\nAfter lunch, we rested."
+        script = "console.log(JSON.stringify(require('./site/prose-filter.js').check(process.argv[1])))"
+        result = subprocess.check_output(["node", "-e", script, draft], cwd=Path(__file__).resolve().parents[1])
+        self.assertEqual([row[:2] for row in json.loads(result)], [[2, "opener"], [4, "opener"]])
 
     def test_missing_file_is_a_usage_error(self):
         self.assertEqual(run(["check", "/nonexistent/x.txt"], "").returncode, 2)

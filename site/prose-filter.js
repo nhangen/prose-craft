@@ -38,17 +38,20 @@ const ProseFilter = (() => {
     return first.endsWith("ing") && !NOT_PARTICIPLES.has(first) && lead.includes(",");
   }
 
-  function sentences(t) {
-    const out = [];
-    let buf = "";
-    for (const part of t.split(SPLIT)) {
-      buf = buf ? (buf + " " + part).trim() : part;
-      if (ABBR.test(buf)) continue;
-      out.push(buf);
-      buf = "";
+  function* sentenceRanges(text) {
+    let start = 0;
+    for (const match of text.matchAll(new RegExp(SPLIT, "g"))) {
+      const sentence = text.slice(start, match.index);
+      if (ABBR.test(sentence)) continue;
+      const next = match.index + match[0].length;
+      yield [sentence, text.slice(start, next)];
+      start = next;
     }
-    if (buf) out.push(buf);
-    return out;
+    yield [text.slice(start), ""];
+  }
+
+  function sentences(text) {
+    return Array.from(sentenceRanges(text), ([sentence]) => sentence);
   }
 
   function maskCode(text) {
@@ -66,15 +69,19 @@ const ProseFilter = (() => {
       const n = i + 1;
       const startsNew = !line.trim() || ITEM.test(line) || line.trimStart().startsWith("#");
       if (startsNew && cur.length) {
-        out.push([start, cur.join(" ")]);
+        out.push([start, cur.join("\n")]);
         cur = [];
       }
       if (line.trim()) {
         if (!cur.length) start = n;
         cur.push(line.replace(ITEM, "").trim());
+        if (line.trimStart().startsWith("#")) {
+          out.push([start, cur[0]]);
+          cur = [];
+        }
       }
     });
-    if (cur.length) out.push([start, cur.join(" ")]);
+    if (cur.length) out.push([start, cur.join("\n")]);
     return out;
   }
 
@@ -90,10 +97,13 @@ const ProseFilter = (() => {
       }
     });
     for (const [n, para] of paragraphs(masked)) {
-      for (const s of sentences(para.replace(/[*_]/g, ""))) {
+      let line = n;
+      for (const [source, consumed] of sentenceRanges(para.replace(/[*_]/g, ""))) {
+        const s = source.replace(/\n/g, " ");
         if (/[A-Za-z]/.test(s) && isAdverbialOpener(s)) {
-          out.push([n, "opener", `sentence opens with an adverbial: "${cut(s, 70)}". Put the subject first and move the phrase after the verb.`]);
+          out.push([line, "opener", `sentence opens with an adverbial: "${cut(s, 70)}". Put the subject first and move the phrase after the verb.`]);
         }
+        line += consumed.split("\n").length - 1;
       }
     }
     const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
