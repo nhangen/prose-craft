@@ -90,6 +90,7 @@ def main(argv):
         detail = e.strerror if isinstance(e, OSError) else str(e)
         print(f"error: {a.file}: {detail}", file=sys.stderr)
         return 2
+    original = text
     v = check(text)
     if a.cmd == "check":
         if v:
@@ -119,7 +120,7 @@ def main(argv):
         if res.returncode != 0 or not res.stdout.strip():
             print(f"error: agent failed in round {rnd + 1} (exit {res.returncode}): {res.stderr.strip()[:200]}", file=sys.stderr)
             return 2
-        text = pl.normalize(res.stdout)
+        text = pl.normalize(res.stdout, original)
         if not text.strip():
             print(f"error: agent returned empty text in round {rnd + 1}", file=sys.stderr)
             return 2

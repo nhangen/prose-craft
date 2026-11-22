@@ -1,4 +1,5 @@
 """Guardrail measurements for prose-craft rounds. Guardrails catch regressions; they are never a quality score."""
+from collections import Counter
 import re
 import statistics as st
 
@@ -57,12 +58,20 @@ def adverbial_opener_share(text):
     return sum(is_adverbial_opener(s) for s in ss) / len(ss) if ss else 0.0
 
 
-def normalize(text):
+def normalize(text, original=""):
     t = text.strip()
     if t.startswith("```") and t.endswith("```") and t.count("```") == 2:
         t = t.split("\n", 1)[1] if "\n" in t else ""
         t = t[: t.rfind("```")]
-    t = TRAILER.sub("", t)
+    supplied = Counter(line for line in original.splitlines() if TRAILER.fullmatch(line))
+    lines = []
+    for line in t.split("\n"):
+        if TRAILER.fullmatch(line):
+            if not supplied[line]:
+                continue
+            supplied[line] -= 1
+        lines.append(line)
+    t = "\n".join(lines)
     return t.strip()
 
 

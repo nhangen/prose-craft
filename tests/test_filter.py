@@ -101,6 +101,12 @@ class Run(unittest.TestCase):
         self.assertIn("rejected after 2 rounds", r.stderr)
         self.assertEqual(calls.read_text(), "2")
 
+    def test_revision_keeps_existing_signoffs_in_prose_and_code(self):
+        draft = "We—shipped.\n\nSigned-off-by: Pat\n\n```text\n  Signed-off-by: Sam\n```\n"
+        r = run(["run", "--agent", self.agent(FIXER), "-"], draft)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(r.stdout, draft.replace("—", ", "))
+
     def test_empty_normalized_revision_is_an_agent_error(self):
         trailer = "import sys\nprint('Signed-off-by: Placeholder <x@example.test>')\n"
         r = run(["run", "--agent", self.agent(trailer), "-"], "The run—restarted.\n")
