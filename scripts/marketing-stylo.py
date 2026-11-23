@@ -5,7 +5,7 @@ Analyzes marketing corpus JSON fixtures and outputs field-aware comparative
 statistics across brands and categories without flattening headlines.
 
 Usage:
-  marketing-stylo.py analyze <corpus.json>...
+  marketing-stylo.py analyze <corpus.json>
   marketing-stylo.py compare <human_corpus.json> <llm_baseline.json>
 """
 import argparse
