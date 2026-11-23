@@ -11,6 +11,7 @@ Saves to gitignored data/corpus/marketing-corpus.json for copyright protection.
 """
 import argparse
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -73,8 +74,13 @@ def load_corpus(path=DEFAULT_CORPUS_PATH, create_if_missing=False):
 def save_corpus(data, path=DEFAULT_CORPUS_PATH):
     path.parent.mkdir(parents=True, exist_ok=True)
     data["updated_at"] = datetime.now(timezone.utc).isoformat()
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+    tmp = path.with_name(path.name + ".tmp")
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        os.replace(tmp, path)
+    finally:
+        tmp.unlink(missing_ok=True)
 
 
 def init_corpus(path=DEFAULT_CORPUS_PATH):

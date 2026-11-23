@@ -194,6 +194,14 @@ class TestHarvest(unittest.TestCase):
         self.assertIn(str(self.path), str(cm.exception.code))
         self.assertFalse(self.path.exists())
 
+    def test_a_failed_save_leaves_the_existing_corpus_intact(self):
+        with redirect_stdout(io.StringIO()):
+            harvest.init_corpus(self.path)
+        before = self.path.read_text()
+        with self.assertRaises(TypeError):
+            harvest.save_corpus({"companies": [object()]}, self.path)
+        self.assertEqual(self.path.read_text(), before)
+
     def test_init_creates_the_registry_once(self):
         with redirect_stdout(io.StringIO()):
             harvest.init_corpus(self.path)
