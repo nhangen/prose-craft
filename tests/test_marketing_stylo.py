@@ -92,6 +92,17 @@ class TestPoolMetrics(unittest.TestCase):
         m = stylo_cli.pool_metrics(corpus({"hero": {"headline": "Ship faster", "cta": "Unlock your seamless potential"}}))
         self.assertAlmostEqual(m["buzzwords_per_1k"], 1000.0 * 2 / 6)
 
+    def test_a_headline_with_no_words_is_skipped_and_counted(self):
+        m = stylo_cli.pool_metrics(corpus({"hero": {"headline": "\U0001F680"}}, {"hero": {"headline": "Build it now"}}))
+        self.assertEqual(m["headline_count"], 1)
+        self.assertEqual(m["headline_len_mean"], 3)
+        self.assertEqual(m["headline_len_min"], 3)
+        self.assertEqual(m["headlines_skipped"], 1)
+
+    def test_opener_shares_sum_to_one(self):
+        m = stylo_cli.pool_metrics(corpus({"hero": {"headline": "##"}}, {"hero": {"headline": "Build it now"}}))
+        self.assertAlmostEqual(sum(m["opener_dist"].values()), 1.0)
+
 
 class TestCorpusInput(unittest.TestCase):
     def write(self, data):

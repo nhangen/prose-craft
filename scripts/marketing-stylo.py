@@ -46,6 +46,7 @@ def pool_metrics(companies):
     emdash_headlines = 0
     emdash_subheads = 0
     period_headlines = 0
+    skipped_headlines = 0
     total_buzzwords = 0
     total_words = 0
     opener_counts = {"imperative": 0, "subject_first": 0, "noun_fragment": 0, "adverbial": 0, "empty": 0}
@@ -54,7 +55,9 @@ def pool_metrics(companies):
         for surf in comp.get("surfaces", []):
             m = ml.surface_metrics(surf)
             hh = m.get("hero_headline")
-            if hh:
+            if hh and hh["word_count"] == 0:
+                skipped_headlines += 1
+            elif hh:
                 headlines.append(hh["word_count"])
                 if hh["has_emdash"]:
                     emdash_headlines += 1
@@ -95,6 +98,7 @@ def pool_metrics(companies):
     return {
         "companies_count": len(companies),
         "headline_count": len(headlines),
+        "headlines_skipped": skipped_headlines,
         "headline_len_mean": st.mean(headlines) if headlines else 0.0,
         "headline_len_p90": sorted(headlines)[int(0.9 * (len(headlines) - 1))] if headlines else 0,
         "headline_len_min": min(headlines) if headlines else 0,
@@ -112,6 +116,8 @@ def pool_metrics(companies):
 def print_summary_table(title, metrics):
     print(f"\n=== {title} ===")
     print(f"Companies: {metrics['companies_count']} | Headlines Analyzed: {metrics['headline_count']}")
+    if metrics["headlines_skipped"]:
+        print(f"Headlines skipped (no words): {metrics['headlines_skipped']}")
     print(f"Headline Length (words): Mean={metrics['headline_len_mean']:.1f}, Min={metrics['headline_len_min']}, Max={metrics['headline_len_max']}, P90={metrics['headline_len_p90']}")
     print(f"Subhead Length (words):  Mean={metrics['subhead_len_mean']:.1f}")
     print(f"CTA Length (words):      Mean={metrics['cta_len_mean']:.1f}")
