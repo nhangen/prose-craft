@@ -57,13 +57,14 @@ SUBJECT_STARTERS = {
 
 def words(s):
     """Word tokens, including digits and accented letters; hyphenated terms stay whole."""
-    return re.findall(r"[^\W_][\w'’-]*", s)
+    return re.findall(r"[^\W_][\w'’‐‑-]*", s)
 
 
 def clean_headline(h):
     """Clean markdown formatting from headline while preserving exact wording and punctuation."""
     if not h:
         return ""
+    h = re.sub(r"(?i)<br\s*/?>", "\n", h)
     h = re.sub(r"^\s*#{1,6}\s+", "", h.strip())
     h = re.sub(r"[*_`]", "", h)
     return " ".join(h.split())
@@ -94,7 +95,7 @@ def is_fragment_string(s):
 
 def classify_opener(s):
     """Classify the opening syntax of a sentence or headline.
-    
+
     Returns one of:
       'adverbial': starts with preposition, adverbial clause, -ly adverb, or participle
       'imperative': starts with an action verb (implied 2nd person subject)
@@ -108,18 +109,18 @@ def classify_opener(s):
         return "empty"
     if is_fragment_string(s):
         return "fragment_string"
-    
+
     if pl.is_adverbial_opener(s):
         return "adverbial"
-    
+
     first = ws[0].lower()
-    
+
     if first in COMMON_IMPERATIVES:
         return "imperative"
-    
+
     if first in SUBJECT_STARTERS:
         return "subject_first"
-    
+
     if has_verb(s):
         return "subject_first"
     if len(ws) <= 6:
@@ -137,16 +138,80 @@ def headline_metrics(headline):
         term_punct = "\u2026"
     else:
         term_punct = clean[-1] if (clean and clean[-1] in ".!?") else ""
-    
+
+    budget = check_headline_budget(clean)
+    dangling = check_dangling_line_endings(headline)
+
     return {
         "text": clean,
         "word_count": len(ws),
+        "char_count": len(clean),
         "terminal_period": term_period,
         "terminal_punct": term_punct,
         "opener_type": classify_opener(clean),
         "has_emdash": bool(pl.DASH.search(headline)),
         "has_colon": ":" in headline,
+        "budget_passes": budget["passes"],
+        "dangling_line_breaks": len(dangling),
     }
+
+
+DANGLING_CONNECTIVES = re.compile(
+    r"\b(?:the|a|an|to|for|of|in|with|on|at|by|from|and|or|but|which)\s*$",
+    re.IGNORECASE
+)
+
+
+def check_headline_budget(headline, max_words=7, max_chars=45):
+    """Check whether a hero headline stays within the 2-line visual budget."""
+    clean = clean_headline(headline)
+    ws = words(clean)
+    w_count = len(ws)
+    c_count = len(clean)
+    over_w = w_count > max_words
+    over_c = c_count > max_chars
+    return {
+        "passes": not (over_w or over_c),
+        "word_count": w_count,
+        "char_count": c_count,
+        "over_words": over_w,
+        "over_chars": over_c,
+    }
+
+
+def check_dangling_line_endings(text):
+    """Detect lines ending with stranded weak connectives in explicitly broken copy.
+
+    Only analyzes text containing explicit newlines or <br> tags.
+    """
+    normalized = re.sub(r"(?i)<br\s*/?>", "\n", text)
+    lines = [(i, line.strip()) for i, line in enumerate(normalized.splitlines(), 1) if line.strip()]
+    if len(lines) <= 1:
+        return []
+
+    violations = []
+    for i, line in lines[:-1]:
+        clean_line = clean_headline(line)
+        tokens = words(clean_line)
+        m = DANGLING_CONNECTIVES.fullmatch(tokens[-1]) if tokens and clean_line.endswith(tokens[-1]) else None
+        if m:
+            violations.append({
+                "line_number": i,
+                "line": line,
+                "dangling_word": m.group(0).strip(),
+            })
+    return violations
+
+
+def check_orphan_tail(text):
+    """Check if the final line of multi-line text is an isolated single word (<8 chars)."""
+    normalized = re.sub(r"(?i)<br\s*/?>", "\n", text)
+    lines = [line.strip() for line in normalized.splitlines() if line.strip()]
+    if len(lines) <= 1:
+        return False
+    last_line = lines[-1]
+    ws = words(last_line)
+    return len(ws) == 1 and len(last_line) < 8
 
 
 def buzzword_count(text):
@@ -169,7 +234,7 @@ def surface_metrics(surface):
     }
     """
     res = {}
-    
+
     hero = surface.get("hero") or {}
     if hero.get("headline"):
         res["hero_headline"] = headline_metrics(hero["headline"])
@@ -193,7 +258,7 @@ def surface_metrics(surface):
             "opener_type": classify_opener(cta_text),
             "buzzwords": buzzword_count(cta_text),
         }
-        
+
     features = [f for f in (surface.get("features") or []) if isinstance(f, dict)]
     if features:
         feat_headers = [f.get("header", "") for f in features if f.get("header")]
@@ -205,7 +270,7 @@ def surface_metrics(surface):
             "desc_emdash_count": sum(bool(pl.DASH.search(d)) for d in feat_descs),
             "desc_buzzwords": sum(buzzword_count(d) for d in feat_descs),
         }
-        
+
     ann = surface.get("announcement") or {}
     if ann.get("body") or ann.get("title"):
         ann_text = " ".join(ann.get(k) or "" for k in ("title", "opener", "body")).strip()
@@ -220,5 +285,5 @@ def surface_metrics(surface):
             "buzzwords": buzzword_count(ann_text),
             "adverbial_opener_share": pl.adverbial_opener_share(ann_text),
         }
-        
+
     return res

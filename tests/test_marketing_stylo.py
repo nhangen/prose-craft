@@ -90,6 +90,64 @@ class TestMarketingStylo(unittest.TestCase):
         self.assertEqual(ml.classify_opener("Financial infrastructure for modern internet businesses"), "noun_fragment")
         self.assertEqual(ml.classify_opener("Financial infrastructure for modern internet businesses everywhere"), "unclassified")
 
+    def test_surface_headline_budget_treats_html_break_as_newline(self):
+        headline = "Build simple tools<br>for small teams today."
+        metrics = ml.surface_metrics({"hero": {"headline": headline}})["hero_headline"]
+        self.assertEqual(metrics["word_count"], 7)
+        self.assertEqual(metrics["char_count"], 41)
+        self.assertTrue(metrics["budget_passes"])
+
+    def test_surface_headline_flags_each_budget_limit_and_dangling_break(self):
+        cases = ("One two three four five six seven<br>eight", "Extraordinary infrastructure capabilities for global enterprises")
+        for headline in cases:
+            with self.subTest(headline=headline):
+                metrics = ml.surface_metrics({"hero": {"headline": headline}})["hero_headline"]
+                self.assertFalse(metrics["budget_passes"])
+        metrics = ml.surface_metrics({"hero": {"headline": "Build tools for<br>small teams"}})["hero_headline"]
+        self.assertEqual(metrics["dangling_line_breaks"], 1)
+
+    def test_dangling_line_preserves_line_number_and_handles_markdown(self):
+        violations = ml.check_dangling_line_endings("Build tools\n\nmade **for**\nsmall teams")
+        self.assertEqual(violations, [{"line_number": 3, "line": "made **for**", "dangling_word": "for"}])
+
+    def test_hyphenated_word_is_not_a_dangling_connective(self):
+        for hyphen in ("-", "‐", "‑"):
+            with self.subTest(hyphen=hyphen):
+                self.assertEqual(ml.check_dangling_line_endings(f"Built{hyphen}in\nsecurity"), [])
+                self.assertEqual(ml.headline_metrics(f"Built{hyphen}in security")["word_count"], 2)
+
+    def test_punctuated_question_is_not_a_dangling_connective(self):
+        self.assertEqual(ml.check_dangling_line_endings("Who is it for?\nBuilt for everyone."), [])
+
+    def test_check_headline_budget_passes_short_headline(self):
+        res = ml.check_headline_budget("Trust your Darkbloom fleet.")
+        self.assertTrue(res["passes"])
+        self.assertFalse(res["over_words"])
+        self.assertFalse(res["over_chars"])
+
+    def test_check_headline_budget_fails_gargoyl_long_headline(self):
+        res = ml.check_headline_budget("See which Darkbloom host reports to trust, and which to recheck.")
+        self.assertFalse(res["passes"])
+        self.assertTrue(res["over_words"])
+        self.assertTrue(res["over_chars"])
+
+    def test_check_dangling_line_endings_detects_stranded_words(self):
+        broken_text = "See which\nDarkbloom\nhost reports to\ntrust, and which\nto recheck."
+        dangling = ml.check_dangling_line_endings(broken_text)
+        self.assertTrue(any(d["dangling_word"].lower() in ("to", "which") for d in dangling))
+
+    def test_check_dangling_line_endings_clean_on_single_line(self):
+        clean_text = "See which Darkbloom host reports to trust, and which to recheck."
+        dangling = ml.check_dangling_line_endings(clean_text)
+        self.assertEqual(len(dangling), 0)
+
+    def test_check_orphan_tail_detects_solitary_last_word(self):
+        text_with_orphan = "Financial infrastructure for the internet.\nScale."
+        self.assertTrue(ml.check_orphan_tail(text_with_orphan))
+
+        clean_text = "Financial infrastructure for the internet.\nScale globally."
+        self.assertFalse(ml.check_orphan_tail(clean_text))
+
     def test_buzzword_counting(self):
         clean_text = "Accept payments, build flexible billing, and move money globally."
         self.assertEqual(ml.buzzword_count(clean_text), 0)
