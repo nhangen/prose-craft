@@ -78,6 +78,11 @@ def has_verb(s):
     return bool(VERB.search(s))
 
 
+def is_fragment_string(s, max_words=3):
+    segments = [seg for seg in re.split(r"[.!?]+", s) if words(seg)]
+    return len(segments) >= 2 and all(len(words(seg)) <= max_words and not has_verb(seg) for seg in segments)
+
+
 def classify_opener(s):
     """Classify the opening syntax of a sentence or headline.
     
@@ -86,11 +91,14 @@ def classify_opener(s):
       'imperative': starts with an action verb (implied 2nd person subject)
       'subject_first': starts with an overt subject pronoun, determiner, or named entity
       'noun_fragment': bare noun phrase of six words or fewer without a finite verb
+      'fragment_string': two or more short verbless segments (Fast. Simple. Powerful.)
       'unclassified': no recognized opener and no recognized verb
     """
     ws = words(s)
     if not ws:
         return "empty"
+    if is_fragment_string(s):
+        return "fragment_string"
     
     # Check adverbial opener via prose_lib
     if pl.is_adverbial_opener(s):
