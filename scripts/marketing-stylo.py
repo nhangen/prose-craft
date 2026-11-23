@@ -27,7 +27,7 @@ def load_corpus(path):
     if isinstance(data, list):
         return data
     if isinstance(data, dict) and "companies" in data:
-        return data["companies"]
+        return data["companies"] or []
     if isinstance(data, dict) and "surfaces" in data:
         return [data]
     sys.exit(f"{path}: expected a list of companies, {{'companies': [...]}}, or one company with 'surfaces'")
@@ -57,7 +57,7 @@ def pool_metrics(companies):
     opener_counts = {"imperative": 0, "subject_first": 0, "noun_fragment": 0, "adverbial": 0, "fragment_string": 0, "unclassified": 0, "empty": 0}
 
     for comp in companies:
-        for surf in comp.get("surfaces", []):
+        for surf in comp.get("surfaces") or []:
             m = ml.surface_metrics(surf)
             hh = m.get("hero_headline")
             if hh and hh["word_count"] == 0:

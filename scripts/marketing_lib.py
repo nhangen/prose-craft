@@ -194,7 +194,7 @@ def surface_metrics(surface):
             "buzzwords": buzzword_count(cta_text),
         }
         
-    features = surface.get("features", [])
+    features = [f for f in (surface.get("features") or []) if isinstance(f, dict)]
     if features:
         feat_headers = [f.get("header", "") for f in features if f.get("header")]
         feat_descs = [f.get("description", "") for f in features if f.get("description")]
@@ -208,7 +208,7 @@ def surface_metrics(surface):
         
     ann = surface.get("announcement") or {}
     if ann.get("body") or ann.get("title"):
-        ann_text = f"{ann.get('title', '')} {ann.get('opener', '')} {ann.get('body', '')}".strip()
+        ann_text = " ".join(ann.get(k) or "" for k in ("title", "opener", "body")).strip()
         ann_ws = words(ann_text)
         ann_sents = stylo.sentences(ann_text)
         lens = [len(words(s)) for s in ann_sents if words(s)]

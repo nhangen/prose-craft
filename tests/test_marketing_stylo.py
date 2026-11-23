@@ -194,6 +194,16 @@ class TestCorpusInput(unittest.TestCase):
     def test_null_sections_are_treated_as_absent(self):
         self.assertEqual(ml.surface_metrics({"hero": None, "announcement": None}), {})
 
+    def test_null_features_and_fields_are_treated_as_absent(self):
+        m = ml.surface_metrics({"features": [None, {"description": "Runs close to users."}],
+                                "announcement": {"title": None, "opener": None, "body": "Hello world"}})
+        self.assertEqual(m["features"]["desc_word_counts"], [4])
+        self.assertEqual(m["announcement"]["word_count"], 2)
+
+    def test_null_surfaces_and_companies_are_treated_as_empty(self):
+        self.assertEqual(stylo_cli.pool_metrics([{"name": "Acme", "surfaces": None}])["headline_count"], 0)
+        self.assertEqual(stylo_cli.load_corpus(self.write({"companies": None})), [])
+
     def test_analyze_exits_nonzero_when_no_headlines_are_found(self):
         path = self.write({"companies": [{"name": "Acme", "surfaces": []}]})
         sys.argv = ["marketing-stylo.py", "analyze", path]
@@ -232,6 +242,20 @@ class TestHarvest(unittest.TestCase):
         with redirect_stdout(out):
             harvest.status_report(self.path)
         self.assertIn("partial (3 surfaces)", out.getvalue())
+
+    def test_status_on_invalid_json_exits_with_the_path(self):
+        self.path.parent.mkdir(parents=True)
+        self.path.write_text("{not json")
+        with redirect_stdout(io.StringIO()), self.assertRaises(SystemExit) as cm:
+            harvest.status_report(self.path)
+        self.assertIn(str(self.path), str(cm.exception.code))
+
+    def test_status_treats_null_surfaces_as_none_captured(self):
+        harvest.save_corpus({"companies": [{"name": "Acme", "category": "c", "surfaces": None}]}, self.path)
+        out = io.StringIO()
+        with redirect_stdout(out):
+            harvest.status_report(self.path)
+        self.assertIn("partial (0 surfaces)", out.getvalue())
 
     def test_init_creates_the_registry_once(self):
         with redirect_stdout(io.StringIO()):

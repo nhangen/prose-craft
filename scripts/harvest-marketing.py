@@ -70,8 +70,13 @@ def load_corpus(path=DEFAULT_CORPUS_PATH, create_if_missing=False):
         if not create_if_missing:
             sys.exit(f"{path}: no corpus here; run init first")
         return {"version": "1.0", "updated_at": datetime.now(timezone.utc).isoformat(), "companies": []}
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            corpus = json.load(f)
+    except (OSError, UnicodeError, json.JSONDecodeError) as e:
+        sys.exit(f"{path}: {e}")
+    corpus["companies"] = corpus.get("companies") or []
+    return corpus
 
 
 def save_corpus(data, path=DEFAULT_CORPUS_PATH):
@@ -115,9 +120,9 @@ def status_report(path=DEFAULT_CORPUS_PATH):
     
     for c in companies:
         cat = c.get("category", "other")
-        surfs = len(c.get("surfaces", []))
+        surfs = len(c.get("surfaces") or [])
         surfaces_total += surfs
-        h_count = sum(1 for s in c.get("surfaces", []) if (s.get("hero") or {}).get("headline"))
+        h_count = sum(1 for s in c.get("surfaces") or [] if (s.get("hero") or {}).get("headline"))
         headlines_total += h_count
         categories.setdefault(cat, []).append((c["name"], surfs, h_count))
         
