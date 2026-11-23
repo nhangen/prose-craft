@@ -93,5 +93,32 @@ class TestPoolMetrics(unittest.TestCase):
         self.assertAlmostEqual(m["buzzwords_per_1k"], 1000.0 * 2 / 6)
 
 
+class TestCorpusInput(unittest.TestCase):
+    def write(self, data):
+        f = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False)
+        f.write(data if isinstance(data, str) else json.dumps(data))
+        f.close()
+        self.addCleanup(Path(f.name).unlink)
+        return f.name
+
+    def test_a_dict_without_companies_or_surfaces_is_rejected(self):
+        with self.assertRaises(SystemExit) as cm:
+            stylo_cli.load_corpus(self.write({"results": [1]}))
+        self.assertNotEqual(cm.exception.code, 0)
+
+    def test_the_three_supported_shapes_load(self):
+        company = {"name": "Acme", "surfaces": []}
+        self.assertEqual(stylo_cli.load_corpus(self.write([company])), [company])
+        self.assertEqual(stylo_cli.load_corpus(self.write({"companies": [company]})), [company])
+        self.assertEqual(stylo_cli.load_corpus(self.write(company)), [company])
+
+    def test_analyze_exits_nonzero_when_no_headlines_are_found(self):
+        path = self.write({"companies": [{"name": "Acme", "surfaces": []}]})
+        sys.argv = ["marketing-stylo.py", "analyze", path]
+        with redirect_stdout(io.StringIO()), self.assertRaises(SystemExit) as cm:
+            stylo_cli.main()
+        self.assertNotEqual(cm.exception.code, 0)
+
+
 if __name__ == "__main__":
     unittest.main()

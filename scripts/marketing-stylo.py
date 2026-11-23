@@ -26,7 +26,14 @@ def load_corpus(path):
         return data
     if isinstance(data, dict) and "companies" in data:
         return data["companies"]
-    return [data]
+    if isinstance(data, dict) and "surfaces" in data:
+        return [data]
+    sys.exit(f"{path}: expected a list of companies, {{'companies': [...]}}, or one company with 'surfaces'")
+
+
+def require_headlines(label, metrics):
+    if metrics["headline_count"] == 0:
+        sys.exit(f"{label}: no headlines found, so there is nothing to measure")
 
 
 def pool_metrics(companies):
@@ -120,6 +127,8 @@ def compare_corpora(human_path, llm_path):
     
     h_met = pool_metrics(h_data)
     l_met = pool_metrics(l_data)
+    require_headlines(human_path, h_met)
+    require_headlines(llm_path, l_met)
     
     print_summary_table(f"HUMAN BENCHMARK ({Path(human_path).stem})", h_met)
     print_summary_table(f"LLM BASELINE ({Path(llm_path).stem})", l_met)
@@ -148,6 +157,7 @@ def main():
     if args.cmd == "analyze":
         data = load_corpus(args.file)
         metrics = pool_metrics(data)
+        require_headlines(args.file, metrics)
         print_summary_table(f"Corpus: {Path(args.file).name}", metrics)
     elif args.cmd == "compare":
         compare_corpora(args.human, args.llm)
