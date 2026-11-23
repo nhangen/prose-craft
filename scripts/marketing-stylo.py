@@ -39,6 +39,12 @@ def require_headlines(label, metrics):
         sys.exit(f"{label}: no headlines found, so there is nothing to measure")
 
 
+def p90(values):
+    if len(values) < 2:
+        return float(values[0]) if values else 0.0
+    return st.quantiles(values, n=10, method="inclusive")[-1]
+
+
 def pool_metrics(companies):
     headlines = []
     subheads = []
@@ -100,7 +106,7 @@ def pool_metrics(companies):
         "headline_count": len(headlines),
         "headlines_skipped": skipped_headlines,
         "headline_len_mean": st.mean(headlines) if headlines else 0.0,
-        "headline_len_p90": sorted(headlines)[int(0.9 * (len(headlines) - 1))] if headlines else 0,
+        "headline_len_p90": p90(headlines),
         "headline_len_min": min(headlines) if headlines else 0,
         "headline_len_max": max(headlines) if headlines else 0,
         "headline_period_rate": period_headlines / n_h,
@@ -118,7 +124,7 @@ def print_summary_table(title, metrics):
     print(f"Companies: {metrics['companies_count']} | Headlines Analyzed: {metrics['headline_count']}")
     if metrics["headlines_skipped"]:
         print(f"Headlines skipped (no words): {metrics['headlines_skipped']}")
-    print(f"Headline Length (words): Mean={metrics['headline_len_mean']:.1f}, Min={metrics['headline_len_min']}, Max={metrics['headline_len_max']}, P90={metrics['headline_len_p90']}")
+    print(f"Headline Length (words): Mean={metrics['headline_len_mean']:.1f}, Min={metrics['headline_len_min']}, Max={metrics['headline_len_max']}, P90={metrics['headline_len_p90']:.1f}")
     print(f"Subhead Length (words):  Mean={metrics['subhead_len_mean']:.1f}")
     print(f"CTA Length (words):      Mean={metrics['cta_len_mean']:.1f}")
     print(f"Headline Period Rate:   {metrics['headline_period_rate']*100:.1f}%")

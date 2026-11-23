@@ -133,6 +133,10 @@ class TestPoolMetrics(unittest.TestCase):
         m = stylo_cli.pool_metrics(corpus({"hero": {"headline": "Fast. Simple. Powerful."}}))
         self.assertEqual(m["opener_dist"]["fragment_string"], 1.0)
 
+    def test_p90_is_not_the_minimum_for_two_headlines(self):
+        m = stylo_cli.pool_metrics(corpus({"hero": {"headline": "Ship"}}, {"hero": {"headline": "Ship it now please"}}))
+        self.assertAlmostEqual(m["headline_len_p90"], 3.7)
+
 
 class TestCorpusInput(unittest.TestCase):
     def write(self, data):
