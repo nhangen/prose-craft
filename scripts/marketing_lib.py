@@ -127,8 +127,12 @@ def headline_metrics(headline):
     """Analyze a single marketing headline accurately."""
     clean = clean_headline(headline)
     ws = words(clean)
-    term_period = clean.endswith(".") and not clean.endswith("...")
-    term_punct = clean[-1] if (clean and clean[-1] in ".!?") else ""
+    ellipsis = clean.endswith("...") or clean.endswith("\u2026")
+    term_period = clean.endswith(".") and not ellipsis
+    if ellipsis:
+        term_punct = "\u2026"
+    else:
+        term_punct = clean[-1] if (clean and clean[-1] in ".!?") else ""
     
     return {
         "text": clean,

@@ -37,6 +37,12 @@ class TestMarketingStylo(unittest.TestCase):
         self.assertTrue(ml.headline_metrics("Titanium.")["terminal_period"])
         self.assertEqual(ml.headline_metrics("Hello!")["terminal_punct"], "!")
 
+    def test_an_ellipsis_is_not_reported_as_a_period(self):
+        for h in ("Ship faster...", "Ship faster\u2026"):
+            m = ml.headline_metrics(h)
+            self.assertFalse(m["terminal_period"])
+            self.assertEqual(m["terminal_punct"], "\u2026")
+
     def test_a_markdown_heading_prefix_is_stripped_and_the_words_kept(self):
         self.assertEqual(ml.headline_metrics("## Built for Developers")["text"], "Built for Developers")
 
