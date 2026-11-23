@@ -97,6 +97,15 @@ class TestMarketingStylo(unittest.TestCase):
         self.assertEqual(metrics["char_count"], 41)
         self.assertTrue(metrics["budget_passes"])
 
+    def test_surface_headline_flags_each_budget_limit_and_dangling_break(self):
+        cases = ("One two three four five six seven<br>eight", "Extraordinary infrastructure capabilities for global enterprises")
+        for headline in cases:
+            with self.subTest(headline=headline):
+                metrics = ml.surface_metrics({"hero": {"headline": headline}})["hero_headline"]
+                self.assertFalse(metrics["budget_passes"])
+        metrics = ml.surface_metrics({"hero": {"headline": "Build tools for<br>small teams"}})["hero_headline"]
+        self.assertEqual(metrics["dangling_line_breaks"], 1)
+
     def test_dangling_line_preserves_line_number_and_handles_markdown(self):
         violations = ml.check_dangling_line_endings("Build tools\n\nmade **for**\nsmall teams")
         self.assertEqual(violations, [{"line_number": 3, "line": "made **for**", "dangling_word": "for"}])
