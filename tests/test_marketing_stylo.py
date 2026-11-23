@@ -75,8 +75,13 @@ class TestMarketingStylo(unittest.TestCase):
     def test_a_string_of_fragments_differs_from_a_single_fragment(self):
         self.assertEqual(ml.classify_opener("Fast. Simple. Powerful."), "fragment_string")
         self.assertEqual(ml.classify_opener("Titanium."), "noun_fragment")
-        self.assertEqual(ml.classify_opener("Ship faster. Sleep better."), "fragment_string")
+        self.assertEqual(ml.classify_opener("Fast. Simple."), "fragment_string")
         self.assertNotEqual(ml.classify_opener("Stripe is fast. It scales."), "fragment_string")
+
+    def test_short_imperative_or_subject_clauses_are_not_a_fragment_string(self):
+        self.assertEqual(ml.classify_opener("Ship faster. Sleep better."), "imperative")
+        self.assertEqual(ml.classify_opener("Accept payments. Grow revenue."), "imperative")
+        self.assertEqual(ml.classify_opener("We build tools. You ship."), "subject_first")
 
     def test_a_long_verbless_headline_is_unclassified_not_subject_first(self):
         self.assertEqual(ml.classify_opener("Payments, billing, and banking for modern businesses everywhere"), "unclassified")

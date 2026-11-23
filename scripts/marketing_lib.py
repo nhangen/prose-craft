@@ -76,9 +76,20 @@ def has_verb(s):
     return bool(VERB.search(s))
 
 
-def is_fragment_string(s, max_words=3):
+def is_fragment(segment, max_words=3):
+    ws = words(segment)
+    first = ws[0].lower()
+    return (
+        len(ws) <= max_words
+        and first not in COMMON_IMPERATIVES
+        and first not in SUBJECT_STARTERS
+        and not has_verb(segment)
+    )
+
+
+def is_fragment_string(s):
     segments = [seg for seg in re.split(r"[.!?]+", s) if words(seg)]
-    return len(segments) >= 2 and all(len(words(seg)) <= max_words and not has_verb(seg) for seg in segments)
+    return len(segments) >= 2 and all(is_fragment(seg) for seg in segments)
 
 
 def classify_opener(s):
