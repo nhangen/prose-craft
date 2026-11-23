@@ -105,6 +105,24 @@ class TestMarketingStylo(unittest.TestCase):
         self.assertFalse(m2["has_emdash"])
 
 
+class TestSurfaceMetrics(unittest.TestCase):
+    def test_every_section_is_measured(self):
+        m = ml.surface_metrics({
+            "hero": {"headline": "Ship faster", "subhead": "Deploy in seconds. Scale seamlessly.", "cta": "Start free"},
+            "features": [{"header": "Edge", "description": "Runs close to users."}],
+            "announcement": {"title": "Today we launch", "body": "It is fast. It is robust."},
+        })
+        self.assertEqual(m["hero_headline"]["word_count"], 2)
+        self.assertEqual(m["hero_subhead"]["sentence_count"], 2)
+        self.assertEqual(m["hero_subhead"]["buzzwords"], 1)
+        self.assertEqual(m["hero_cta"]["opener_type"], "imperative")
+        self.assertEqual(m["features"]["desc_word_counts"], [4])
+        self.assertEqual(m["announcement"]["buzzwords"], 1)
+
+    def test_an_empty_surface_yields_no_metrics(self):
+        self.assertEqual(ml.surface_metrics({}), {})
+
+
 def corpus(*surfaces):
     return [{"name": "Acme", "surfaces": list(surfaces)}]
 
