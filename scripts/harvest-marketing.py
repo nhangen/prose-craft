@@ -61,8 +61,10 @@ TARGETS_REGISTRY = [
 ]
 
 
-def load_corpus(path=DEFAULT_CORPUS_PATH):
+def load_corpus(path=DEFAULT_CORPUS_PATH, create_if_missing=False):
     if not path.exists():
+        if not create_if_missing:
+            sys.exit(f"{path}: no corpus here; run init first")
         return {"version": "1.0", "updated_at": datetime.now(timezone.utc).isoformat(), "companies": []}
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -76,7 +78,7 @@ def save_corpus(data, path=DEFAULT_CORPUS_PATH):
 
 
 def init_corpus(path=DEFAULT_CORPUS_PATH):
-    corpus = load_corpus(path)
+    corpus = load_corpus(path, create_if_missing=True)
     existing_names = {c["name"] for c in corpus["companies"]}
     added = 0
     for target in TARGETS_REGISTRY:

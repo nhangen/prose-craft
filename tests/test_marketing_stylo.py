@@ -179,5 +179,28 @@ class TestCorpusInput(unittest.TestCase):
         self.assertNotEqual(cm.exception.code, 0)
 
 
+class TestHarvest(unittest.TestCase):
+    def setUp(self):
+        self.dir = Path(tempfile.mkdtemp())
+        self.path = self.dir / "corpus" / "marketing-corpus.json"
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.dir)
+
+    def test_status_on_a_missing_corpus_exits_nonzero(self):
+        with redirect_stdout(io.StringIO()), self.assertRaises(SystemExit) as cm:
+            harvest.status_report(self.path)
+        self.assertIn(str(self.path), str(cm.exception.code))
+        self.assertFalse(self.path.exists())
+
+    def test_init_creates_the_registry_once(self):
+        with redirect_stdout(io.StringIO()):
+            harvest.init_corpus(self.path)
+            harvest.init_corpus(self.path)
+        data = json.loads(self.path.read_text())
+        self.assertEqual(len(data["companies"]), len(harvest.TARGETS_REGISTRY))
+
+
 if __name__ == "__main__":
     unittest.main()
