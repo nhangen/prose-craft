@@ -56,8 +56,8 @@ SUBJECT_STARTERS = {
 
 
 def words(s):
-    """Extract word tokens from text, preserving hyphenated terms."""
-    return re.findall(r"[A-Za-z0-9][A-Za-z0-9'’-]*", s)
+    """Word tokens, including digits and accented letters; hyphenated terms stay whole."""
+    return re.findall(r"[^\W_][\w'’-]*", s)
 
 
 def clean_headline(h):

@@ -43,6 +43,9 @@ class TestMarketingStylo(unittest.TestCase):
             self.assertFalse(m["terminal_period"])
             self.assertEqual(m["terminal_punct"], "\u2026")
 
+    def test_words_keep_accented_letters_whole(self):
+        self.assertEqual(ml.words("F\u00fcr \u00dcber-fast teams"), ["F\u00fcr", "\u00dcber-fast", "teams"])
+
     def test_a_markdown_heading_prefix_is_stripped_and_the_words_kept(self):
         self.assertEqual(ml.headline_metrics("## Built for Developers")["text"], "Built for Developers")
 
