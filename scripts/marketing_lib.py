@@ -9,7 +9,7 @@ import statistics as st
 import sys
 from pathlib import Path
 
-# Add skills/prose-craft/scripts to path to import prose_lib and stylo
+# prose_lib and stylo ship inside the skill, not in this scripts/ directory.
 SKILL_SCRIPTS = Path(__file__).resolve().parent.parent / "skills" / "prose-craft" / "scripts"
 if str(SKILL_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SKILL_SCRIPTS))
@@ -64,9 +64,7 @@ def clean_headline(h):
     """Clean markdown formatting from headline while preserving exact wording and punctuation."""
     if not h:
         return ""
-    # Strip markdown header prefix (# Headline)
     h = re.sub(r"^\s*#{1,6}\s+", "", h.strip())
-    # Strip bold / italic formatting
     h = re.sub(r"[*_`]", "", h)
     return " ".join(h.split())
 
@@ -100,22 +98,17 @@ def classify_opener(s):
     if is_fragment_string(s):
         return "fragment_string"
     
-    # Check adverbial opener via prose_lib
     if pl.is_adverbial_opener(s):
         return "adverbial"
     
     first = ws[0].lower()
     
-    # Check imperative verbs
     if first in COMMON_IMPERATIVES:
         return "imperative"
     
-    # Check overt subject starters
     if first in SUBJECT_STARTERS:
         return "subject_first"
     
-    # Check if there is a finite verb in the sentence
-    # If the headline has no recognizable verb, it is a noun fragment
     if has_verb(s):
         return "subject_first"
     if len(ws) <= 6:
@@ -150,7 +143,6 @@ def buzzword_count(text):
     t_lower = text.lower()
     count = 0
     for b in BUZZWORDS:
-        # Match word boundaries or exact hyphens
         pattern = r"\b" + re.escape(b) + r"\b"
         count += len(re.findall(pattern, t_lower))
     return count

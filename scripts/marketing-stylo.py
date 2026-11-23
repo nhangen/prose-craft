@@ -14,7 +14,6 @@ import statistics as st
 import sys
 from pathlib import Path
 
-# Ensure scripts dir is on sys.path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import marketing_lib as ml
 
