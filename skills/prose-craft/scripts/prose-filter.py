@@ -38,14 +38,17 @@ def paragraphs(text):
     for n, line in enumerate(text.splitlines(), 1):
         starts_new = not line.strip() or ITEM.match(line) or line.lstrip().startswith("#")
         if starts_new and cur:
-            yield start, " ".join(cur)
+            yield start, "\n".join(cur)
             cur = []
         if line.strip():
             if not cur:
                 start = n
             cur.append(ITEM.sub("", line).strip())
+            if line.lstrip().startswith("#"):
+                yield start, cur[0]
+                cur = []
     if cur:
-        yield start, " ".join(cur)
+        yield start, "\n".join(cur)
 
 
 def check(text):
@@ -57,10 +60,22 @@ def check(text):
             out.append((n, "dash", f'dash used as punctuation in "{ctx}". Use a period, comma, colon or parentheses.'))
             break
     for n, para in paragraphs(masked):
-        for s in stylo.sentences(re.sub(r"[*_]", "", para)):
-            if re.search(r"[A-Za-z]", s) and pl.is_adverbial_opener(s):
-                out.append((n, "opener", f'sentence opens with an adverbial: "{s[:70]}". Put the subject first and move the phrase after the verb.'))
+        para = re.sub(r"[*_]", "", para)
+        start = 0
+        for boundary in stylo.SPLIT.finditer(para):
+            if stylo.ABBR.search(para[start:boundary.start()]):
+                continue
+            report_opener(out, n, para[start:boundary.start()])
+            n += para.count("\n", start, boundary.end())
+            start = boundary.end()
+        report_opener(out, n, para[start:])
     return sorted(out)
+
+
+def report_opener(out, n, source):
+    s = source.replace("\n", " ")
+    if re.search(r"[A-Za-z]", s) and pl.is_adverbial_opener(s):
+        out.append((n, "opener", f'sentence opens with an adverbial: "{s[:70]}". Put the subject first and move the phrase after the verb.'))
 
 
 def feedback(text, violations):
