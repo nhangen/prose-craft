@@ -147,7 +147,7 @@ def surface_metrics(surface):
     """
     res = {}
     
-    hero = surface.get("hero", {})
+    hero = surface.get("hero") or {}
     if hero.get("headline"):
         res["hero_headline"] = headline_metrics(hero["headline"])
     if hero.get("subhead"):
@@ -183,7 +183,7 @@ def surface_metrics(surface):
             "desc_buzzwords": sum(buzzword_count(d) for d in feat_descs),
         }
         
-    ann = surface.get("announcement", {})
+    ann = surface.get("announcement") or {}
     if ann.get("body") or ann.get("title"):
         ann_text = f"{ann.get('title', '')} {ann.get('opener', '')} {ann.get('body', '')}".strip()
         ann_ws = words(ann_text)

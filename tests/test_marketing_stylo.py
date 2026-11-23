@@ -112,6 +112,20 @@ class TestCorpusInput(unittest.TestCase):
         self.assertEqual(stylo_cli.load_corpus(self.write({"companies": [company]})), [company])
         self.assertEqual(stylo_cli.load_corpus(self.write(company)), [company])
 
+    def test_invalid_json_exits_with_the_path_in_the_message(self):
+        path = self.write("{not json")
+        with self.assertRaises(SystemExit) as cm:
+            stylo_cli.load_corpus(path)
+        self.assertIn(path, str(cm.exception.code))
+
+    def test_a_missing_file_exits_with_the_path_in_the_message(self):
+        with self.assertRaises(SystemExit) as cm:
+            stylo_cli.load_corpus("/nonexistent/corpus.json")
+        self.assertIn("/nonexistent/corpus.json", str(cm.exception.code))
+
+    def test_null_sections_are_treated_as_absent(self):
+        self.assertEqual(ml.surface_metrics({"hero": None, "announcement": None}), {})
+
     def test_analyze_exits_nonzero_when_no_headlines_are_found(self):
         path = self.write({"companies": [{"name": "Acme", "surfaces": []}]})
         sys.argv = ["marketing-stylo.py", "analyze", path]

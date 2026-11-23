@@ -20,8 +20,11 @@ import marketing_lib as ml
 
 
 def load_corpus(path):
-    with open(path, "r", encoding="utf-8") as f:
-        data = json.load(f)
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, UnicodeError, json.JSONDecodeError) as e:
+        sys.exit(f"{path}: {e}")
     if isinstance(data, list):
         return data
     if isinstance(data, dict) and "companies" in data:

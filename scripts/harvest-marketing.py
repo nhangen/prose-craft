@@ -106,7 +106,7 @@ def status_report(path=DEFAULT_CORPUS_PATH):
         cat = c.get("category", "other")
         surfs = len(c.get("surfaces", []))
         surfaces_total += surfs
-        h_count = sum(1 for s in c.get("surfaces", []) if s.get("hero", {}).get("headline"))
+        h_count = sum(1 for s in c.get("surfaces", []) if (s.get("hero") or {}).get("headline"))
         headlines_total += h_count
         categories.setdefault(cat, []).append((c["name"], surfs, h_count))
         
