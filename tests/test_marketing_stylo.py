@@ -83,5 +83,15 @@ class TestMarketingStylo(unittest.TestCase):
         self.assertFalse(m2["has_emdash"])
 
 
+def corpus(*surfaces):
+    return [{"name": "Acme", "surfaces": list(surfaces)}]
+
+
+class TestPoolMetrics(unittest.TestCase):
+    def test_cta_buzzwords_count_toward_the_buzzword_rate(self):
+        m = stylo_cli.pool_metrics(corpus({"hero": {"headline": "Ship faster", "cta": "Unlock your seamless potential"}}))
+        self.assertAlmostEqual(m["buzzwords_per_1k"], 1000.0 * 2 / 6)
+
+
 if __name__ == "__main__":
     unittest.main()

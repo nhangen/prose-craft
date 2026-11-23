@@ -67,6 +67,7 @@ def pool_metrics(companies):
             if hc:
                 ctas.append(hc["word_count"])
                 total_words += hc["word_count"]
+                total_buzzwords += hc["buzzwords"]
 
             feats = m.get("features")
             if feats:

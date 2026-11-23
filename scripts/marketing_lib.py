@@ -168,6 +168,7 @@ def surface_metrics(surface):
             "text": cta_text,
             "word_count": len(words(cta_text)),
             "opener_type": classify_opener(cta_text),
+            "buzzwords": buzzword_count(cta_text),
         }
         
     features = surface.get("features", [])
