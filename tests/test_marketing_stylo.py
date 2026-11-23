@@ -63,6 +63,13 @@ class TestMarketingStylo(unittest.TestCase):
         self.assertEqual(ml.classify_opener("With Stripe, companies grow faster"), "adverbial")
         self.assertEqual(ml.classify_opener("From idea to production in minutes"), "adverbial")
 
+    def test_a_long_verbless_headline_is_unclassified_not_subject_first(self):
+        self.assertEqual(ml.classify_opener("Payments, billing, and banking for modern businesses everywhere"), "unclassified")
+
+    def test_the_noun_fragment_cutoff_is_six_words(self):
+        self.assertEqual(ml.classify_opener("Financial infrastructure for modern internet businesses"), "noun_fragment")
+        self.assertEqual(ml.classify_opener("Financial infrastructure for modern internet businesses everywhere"), "unclassified")
+
     def test_buzzword_counting(self):
         clean_text = "Accept payments, build flexible billing, and move money globally."
         self.assertEqual(ml.buzzword_count(clean_text), 0)
@@ -102,6 +109,10 @@ class TestPoolMetrics(unittest.TestCase):
     def test_opener_shares_sum_to_one(self):
         m = stylo_cli.pool_metrics(corpus({"hero": {"headline": "##"}}, {"hero": {"headline": "Build it now"}}))
         self.assertAlmostEqual(sum(m["opener_dist"].values()), 1.0)
+
+    def test_unclassified_headlines_appear_in_the_opener_distribution(self):
+        m = stylo_cli.pool_metrics(corpus({"hero": {"headline": "Payments, billing, and banking for modern businesses everywhere"}}))
+        self.assertEqual(m["opener_dist"]["unclassified"], 1.0)
 
 
 class TestCorpusInput(unittest.TestCase):

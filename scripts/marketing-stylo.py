@@ -49,7 +49,7 @@ def pool_metrics(companies):
     skipped_headlines = 0
     total_buzzwords = 0
     total_words = 0
-    opener_counts = {"imperative": 0, "subject_first": 0, "noun_fragment": 0, "adverbial": 0, "empty": 0}
+    opener_counts = {"imperative": 0, "subject_first": 0, "noun_fragment": 0, "adverbial": 0, "unclassified": 0, "empty": 0}
 
     for comp in companies:
         for surf in comp.get("surfaces", []):

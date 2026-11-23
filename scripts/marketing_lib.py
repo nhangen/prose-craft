@@ -71,6 +71,13 @@ def clean_headline(h):
     return " ".join(h.split())
 
 
+VERB = re.compile(r"\b(?:is|are|was|were|has|have|had|will|can|could|do|does|did|be|builds|helps|powers|scales|connects)\b", re.I)
+
+
+def has_verb(s):
+    return bool(VERB.search(s))
+
+
 def classify_opener(s):
     """Classify the opening syntax of a sentence or headline.
     
@@ -78,7 +85,8 @@ def classify_opener(s):
       'adverbial': starts with preposition, adverbial clause, -ly adverb, or participle
       'imperative': starts with an action verb (implied 2nd person subject)
       'subject_first': starts with an overt subject pronoun, determiner, or named entity
-      'noun_fragment': bare noun phrase without a finite verb
+      'noun_fragment': bare noun phrase of six words or fewer without a finite verb
+      'unclassified': no recognized opener and no recognized verb
     """
     ws = words(s)
     if not ws:
@@ -100,11 +108,11 @@ def classify_opener(s):
     
     # Check if there is a finite verb in the sentence
     # If the headline has no recognizable verb, it is a noun fragment
-    has_verb = bool(re.search(r"\b(?:is|are|was|were|has|have|had|will|can|could|do|does|did|be|builds|helps|powers|scales|connects)\b", s, re.I))
-    if not has_verb and len(ws) <= 6:
+    if has_verb(s):
+        return "subject_first"
+    if len(ws) <= 6:
         return "noun_fragment"
-        
-    return "subject_first"
+    return "unclassified"
 
 
 def headline_metrics(headline):
