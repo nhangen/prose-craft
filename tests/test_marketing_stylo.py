@@ -200,6 +200,10 @@ class TestCorpusInput(unittest.TestCase):
         self.assertEqual(m["features"]["desc_word_counts"], [4])
         self.assertEqual(m["announcement"]["word_count"], 2)
 
+    def test_null_list_entries_are_skipped(self):
+        m = stylo_cli.pool_metrics([None, {"name": "Acme", "surfaces": [None, {"hero": {"headline": "Ship it"}}]}])
+        self.assertEqual(m["headline_count"], 1)
+
     def test_null_surfaces_and_companies_are_treated_as_empty(self):
         self.assertEqual(stylo_cli.pool_metrics([{"name": "Acme", "surfaces": None}])["headline_count"], 0)
         self.assertEqual(stylo_cli.load_corpus(self.write({"companies": None})), [])
@@ -256,6 +260,27 @@ class TestHarvest(unittest.TestCase):
         with redirect_stdout(out):
             harvest.status_report(self.path)
         self.assertIn("partial (0 surfaces)", out.getvalue())
+
+    def test_status_skips_null_companies_and_surfaces(self):
+        harvest.save_corpus({"companies": [None, {"name": "Acme", "category": "c", "surfaces": [None]}]}, self.path)
+        out = io.StringIO()
+        with redirect_stdout(out):
+            harvest.status_report(self.path)
+        self.assertIn("(0 headlines)", out.getvalue())
+
+    def test_status_treats_null_companies_as_none(self):
+        harvest.save_corpus({"companies": None}, self.path)
+        out = io.StringIO()
+        with redirect_stdout(out):
+            harvest.status_report(self.path)
+        self.assertIn("Total Companies: 0", out.getvalue())
+
+    def test_status_rejects_a_corpus_that_is_not_an_object(self):
+        self.path.parent.mkdir(parents=True)
+        self.path.write_text("[]")
+        with redirect_stdout(io.StringIO()), self.assertRaises(SystemExit) as cm:
+            harvest.status_report(self.path)
+        self.assertIn(str(self.path), str(cm.exception.code))
 
     def test_init_creates_the_registry_once(self):
         with redirect_stdout(io.StringIO()):

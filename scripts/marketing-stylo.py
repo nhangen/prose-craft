@@ -56,8 +56,8 @@ def pool_metrics(companies):
     total_words = 0
     opener_counts = {"imperative": 0, "subject_first": 0, "noun_fragment": 0, "adverbial": 0, "fragment_string": 0, "unclassified": 0, "empty": 0}
 
-    for comp in companies:
-        for surf in comp.get("surfaces") or []:
+    for comp in (c for c in companies if isinstance(c, dict)):
+        for surf in (s for s in comp.get("surfaces") or [] if isinstance(s, dict)):
             m = ml.surface_metrics(surf)
             hh = m.get("hero_headline")
             if hh and hh["word_count"] == 0:
