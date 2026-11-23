@@ -4,7 +4,7 @@ A Claude Code plugin that makes AI writing less bad. It is not trying to imitate
 
 It has two parts:
 
-- **A skill.** `skills/prose-craft/SKILL.md` loads when the agent drafts or revises prose a person will read. Part 1 holds two hard rules: subject first (no sentence opens with an adverbial phrase) and no em dashes. Part 2 holds habits measured on baseline model output: varied sentence length, complete sentences, thorough documents, concrete closings.
+- **A skill.** `skills/prose-craft/SKILL.md` loads when the agent drafts or revises prose a person will read. Part 1 holds two hard rules: subject first (no sentence opens with an adverbial phrase) and no em dashes. Part 2 holds habits measured on baseline model output: varied sentence length, complete sentences, thorough documents, marketing copy, and concrete closings.
 - **A filter.** `skills/prose-craft/scripts/prose-filter.py` checks finished text against the two hard rules and feeds the violations back to any agent until the text is clean. It has no dependencies beyond Python 3.
 
 The skill shapes the draft as it is written. The filter checks the result. Nothing runs automatically: there are no hooks.
