@@ -202,6 +202,14 @@ class TestHarvest(unittest.TestCase):
             harvest.save_corpus({"companies": [object()]}, self.path)
         self.assertEqual(self.path.read_text(), before)
 
+    def test_a_brand_is_complete_only_with_every_surface(self):
+        three = [{"hero": {"headline": "x"}}] * 3
+        harvest.save_corpus({"companies": [{"name": "Acme", "category": "c", "surfaces": three}]}, self.path)
+        out = io.StringIO()
+        with redirect_stdout(out):
+            harvest.status_report(self.path)
+        self.assertIn("partial (3 surfaces)", out.getvalue())
+
     def test_init_creates_the_registry_once(self):
         with redirect_stdout(io.StringIO()):
             harvest.init_corpus(self.path)

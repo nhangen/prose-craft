@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Harvester and snapshot manager for the 31-brand marketing copy corpus.
+"""Registry and status report for the 31-brand marketing copy corpus.
 
-Maintains curated marketing copy snapshots across 5 surfaces per brand:
+Surfaces are captured by hand into the corpus file; this script does not
+fetch anything. Each brand is complete once it has all 5 surfaces:
 - Home: Main landing hero & value propositions
 - Product 1 & 2: Core feature pages
 - Pricing: Plan tier descriptions and headers
@@ -15,6 +16,8 @@ import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
+SURFACES_PER_BRAND = 5
 
 DEFAULT_CORPUS_PATH = Path(__file__).resolve().parent.parent / "data" / "corpus" / "marketing-corpus.json"
 
@@ -121,7 +124,7 @@ def status_report(path=DEFAULT_CORPUS_PATH):
     for cat, items in sorted(categories.items()):
         print(f"\nCategory: {cat} ({len(items)} companies)")
         for name, surfs, h_count in sorted(items):
-            status = "✓ complete" if surfs >= 3 else f"partial ({surfs} surfaces)"
+            status = "✓ complete" if surfs >= SURFACES_PER_BRAND else f"partial ({surfs} surfaces)"
             print(f"  - {name.ljust(15)}: {status} ({h_count} headlines)")
             
     print(f"\nTotal Surfaces Captured: {surfaces_total}")
@@ -129,13 +132,13 @@ def status_report(path=DEFAULT_CORPUS_PATH):
 
 
 def main():
-    p = argparse.ArgumentParser(description="Marketing Corpus Harvester & Manager")
+    p = argparse.ArgumentParser(description="Marketing corpus registry and status")
     sub = p.add_subparsers(dest="cmd", required=True)
     
     i_cmd = sub.add_parser("init", help="Initialize target companies registry in corpus JSON")
     i_cmd.add_argument("--path", type=Path, default=DEFAULT_CORPUS_PATH)
     
-    s_cmd = sub.add_parser("status", help="Print harvest status across the 31 brands")
+    s_cmd = sub.add_parser("status", help="Print capture status across the 31 brands")
     s_cmd.add_argument("--path", type=Path, default=DEFAULT_CORPUS_PATH)
     
     args = p.parse_args()
