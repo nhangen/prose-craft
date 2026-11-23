@@ -1,14 +1,12 @@
 __pycache__/
 *.pyc
 
-# GitNexus generated files
-.gitnexus/
-.claude/
-AGENTS.md
-CLAUDE.md
+# Local empirical research corpus (copyright protection for verbatim commercial copy)
+data/corpus/
 
 # GitNexus generated files
 .gitnexus/
 .claude/
 AGENTS.md
 CLAUDE.md
+
