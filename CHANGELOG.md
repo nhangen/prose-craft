@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Skill: add a Marketing copy habit. Headlines run near six words and may stand as a single noun or open with a verb; strings of fragments and empty intensifiers are out.
+- Skill: exempt headlines and taglines from the Complete sentences and Voice habits.
+- Site: add a Marketing habit card.
 - Site: rename the workbench to Prose Craft Live. The home page button now reads "Copy to Prose Craft Live".
 - Site: the button copies your draft to the clipboard before it opens Prose Craft Live, where one keystroke (Cmd+V or Ctrl+V) pastes it. The old hash-fragment handoff never arrived, because the live page drops it. If the browser blocks the copy, the page stays put and says how to copy by hand.
 
