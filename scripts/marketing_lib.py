@@ -138,15 +138,77 @@ def headline_metrics(headline):
     else:
         term_punct = clean[-1] if (clean and clean[-1] in ".!?") else ""
     
+    budget = check_headline_budget(clean)
+    dangling = check_dangling_line_endings(headline)
+    
     return {
         "text": clean,
         "word_count": len(ws),
+        "char_count": len(clean),
         "terminal_period": term_period,
         "terminal_punct": term_punct,
         "opener_type": classify_opener(clean),
         "has_emdash": bool(pl.DASH.search(headline)),
         "has_colon": ":" in headline,
+        "budget_passes": budget["passes"],
+        "dangling_line_breaks": len(dangling),
     }
+
+
+DANGLING_CONNECTIVES = re.compile(
+    r"\b(?:the|a|an|to|for|of|in|with|on|at|by|from|and|or|but|which)\s*$",
+    re.I
+)
+
+
+def check_headline_budget(headline, max_words=7, max_chars=45):
+    """Check whether a hero headline stays within the 2-line visual budget."""
+    clean = clean_headline(headline)
+    ws = words(clean)
+    w_count = len(ws)
+    c_count = len(clean)
+    over_w = w_count > max_words
+    over_c = c_count > max_chars
+    return {
+        "passes": not (over_w or over_c),
+        "word_count": w_count,
+        "char_count": c_count,
+        "over_words": over_w,
+        "over_chars": over_c,
+    }
+
+
+def check_dangling_line_endings(text):
+    """Detect lines ending with stranded weak connectives in explicitly broken copy.
+    
+    Only analyzes text containing explicit newlines or <br> tags.
+    """
+    normalized = re.sub(r"(?i)<br\s*/?>", "\n", text)
+    lines = [l.strip() for l in normalized.splitlines() if l.strip()]
+    if len(lines) <= 1:
+        return []
+    
+    violations = []
+    for i, line in enumerate(lines[:-1], 1):
+        m = DANGLING_CONNECTIVES.search(line)
+        if m:
+            violations.append({
+                "line_number": i,
+                "line": line,
+                "dangling_word": m.group(0).strip(),
+            })
+    return violations
+
+
+def check_orphan_tail(text):
+    """Check if the final line of multi-line text is an isolated single word (<8 chars)."""
+    normalized = re.sub(r"(?i)<br\s*/?>", "\n", text)
+    lines = [l.strip() for l in normalized.splitlines() if l.strip()]
+    if len(lines) <= 1:
+        return False
+    last_line = lines[-1]
+    ws = words(last_line)
+    return len(ws) == 1 and len(last_line) < 8
 
 
 def buzzword_count(text):
