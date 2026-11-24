@@ -7,6 +7,7 @@
 - Filter: preserve author sign-offs and signatures during multi-round regeneration (#18, closing #12).
 - Filter: report opener violations with their physical Markdown line numbers rather than normalized block-relative offsets (#19, closing #13).
 - Site: add a Marketing habit card and typographic styles (`text-wrap: balance; hyphens: none` for headings; `text-wrap: pretty` for body copy) to eliminate awkward wrapping and split words (#25, #26).
+- Site: expand the single Marketing habit card into three grouped categories (Marketing, Content, Structure) with click-to-flip example pairs on the back of every habit card.
 - Site: rename the workbench to Prose Craft Live. The home page button now reads "Copy to Prose Craft Live", copying drafts to the clipboard for reliable 1-keystroke pasting (#9, #11).
 - Tooling: add `scripts/harvest-marketing.py` and `scripts/marketing-stylo.py` to benchmark and lint marketing headlines against empirical thresholds.
 
