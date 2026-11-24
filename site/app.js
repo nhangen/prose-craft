@@ -393,9 +393,18 @@
   document.querySelectorAll(".habits .flip").forEach((card) => {
     card.setAttribute("role", "button");
     card.setAttribute("tabindex", "0");
+    const front = card.querySelector(".flip-front");
+    const back = card.querySelector(".flip-back");
+    const sync = () => {
+      const flipped = card.classList.contains("flipped");
+      card.setAttribute("aria-pressed", String(flipped));
+      front.setAttribute("aria-hidden", String(flipped));
+      back.setAttribute("aria-hidden", String(!flipped));
+    };
+    sync();
     const toggle = () => {
       card.classList.toggle("flipped");
-      card.setAttribute("aria-pressed", String(card.classList.contains("flipped")));
+      sync();
     };
     card.addEventListener("click", toggle);
     card.addEventListener("keydown", (e) => {
